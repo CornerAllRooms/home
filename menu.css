@@ -1,0 +1,126 @@
+/* General Reset */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+.pdf-page{
+    position: fixed;
+    width: 100vh;
+    
+    background-size: 100vh;
+    display: cover;
+}
+.pdf-document{
+    position: fixed;
+    width: 100vh;
+    
+    background-size: 100vh;
+    display: cover;
+}
+/* Hamburger Icon Container */
+.hamburger {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  cursor: pointer;
+  z-index: 1000;
+  width: 30px;
+  height: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transform-origin: center;
+  transition: transform 0.6s ease;
+  transform-style: preserve-3d; /* Enable 3D transformations */
+}
+
+
+/* Hamburger Lines */
+.hamburger .line {
+  width: 100%;
+  height: 3px;
+  background-color: white;
+  transition: all 0.4s ease;
+}
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  transition: left 0.3s ease;
+  z-index: 999;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 80px 0 0 0;
+}
+
+.sidebar ul li {
+  padding: 15px 20px;
+}
+
+.sidebar ul li a {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  position: relative;
+}
+
+.sidebar ul li a:hover::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 100%;
+  height: 2px;
+  background-color: #ff4500;
+}
+
+
+
+/* Active State for Sidebar */
+.sidebar.active {
+  left: 0;
+}
+
+
+/* Active State for Hamburger (Flip and Transform into X) */
+.hamburger.active {
+  transform: rotateY(180deg); /* Flip horizontally */
+}
+
+
+.hamburger.active .line1 {
+  transform: translateY(10px) rotate(45deg); /* Move down slightly and rotate */
+}
+
+.hamburger.active .line2 {
+  opacity: 0; /* Fade out the middle line */
+}
+
+.hamburger.active .line3 {
+  transform: translateY(-10px) rotate(-45deg); /* Move up slightly and rotate */
+}
+/* Main Content */
+#pdf-document {
+  padding-left: 20px; /* Default padding */
+  transition: padding-left 0.3s ease; /* Smooth transition */
+}
+
+/* Landscape View Adjustments */
+@media screen and (orientation: landscape) {
+  .sidebar {
+    width: 200px; /* Adjust sidebar width for landscape */
+  }
+
+  #pdf-document {
+    padding-left: 220px; /* Adjust padding for landscape */
+  }
+}

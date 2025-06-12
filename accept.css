@@ -1,0 +1,61 @@
+/* General reset */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Zing Rust', sans-serif; /* Replace with the actual font you're using */
+}
+/* Accept Button and Terms Text Container */
+.accept-container {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 1000; /* Ensure it's above other content */
+}
+
+/* Terms Text */
+.terms-text {
+  font: normal 16px 'Roboto', sans-serif;
+  color: #ffff; /* Black text */
+}
+
+.terms-text a {
+  color: grey; /* Orange link */
+  text-decoration: none;
+}
+
+.terms-text a:hover {
+  text-decoration: underline;
+}
+
+/* Button Style */
+.btn {
+  box-sizing: content-box;
+  width: 120px; /* Reduced width */
+  height: 50px; /* Reduced height */
+  cursor: pointer;
+  border: 1.75px solid rgb(255, 69, 0);
+  border-radius: 31px; /* Adjusted for smaller size */
+  font: normal 20px/50px 'Roboto', sans-serif; /* Adjusted font size */
+  color: rgb(255, 69, 0);
+  text-align: center;
+  text-overflow: clip;
+  letter-spacing: 1px;
+  background: transparent;
+  transition: background-color 0.3s ease;
+  display: block;
+}
+
+/* Button Hover Effect */
+.btn:hover {
+  background-color: rgba(128, 128, 128, 0.2); /* Grey hover */
+}
+
+/* Hide Button and Text When Pressed */
+.hidden {
+  display: none;
+}

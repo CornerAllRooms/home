@@ -1,0 +1,71 @@
+/* General reset */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Zing Rust', sans-serif; /* Replace with the actual font you're using */
+}
+
+/* Video section */
+.video-section {
+  position: relative;
+  
+  height: 50vh; /* Adjust this value to control the portion of the screen the video occupies */
+  overflow: none;
+  
+}
+
+#video-bg {
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: -1;
+  background: black;
+  background-margin: 0;
+}
+
+/* Button container */
+.button-container {
+  position: relative;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2vh; /* Space between buttons (responsive) */
+}
+
+/* Button styling */
+.video-button {
+  background-color: #ff4739;
+  color: black;
+  padding: 1vh 2vw; /* Responsive padding */
+  text-decoration: none;
+  font-size: 1vh; /* Responsive font size */
+  font-family: 'Zing Rust', sans-serif; /* Replace with the actual font you're using */
+  border: none;
+  cursor: pointer;
+  width: 25vw; /* Responsive width */
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.video-button:hover {
+  background-color: #e63a2d; /* Slightly darker on hover */
+}
+.video-container .video {
+     width: 100%;
+     height: auto;
+   }
+.pdf-page-4{
+    margin: 0;
+    padding: 0;
+    display: contain;
+    background-color: white;
+
+}
