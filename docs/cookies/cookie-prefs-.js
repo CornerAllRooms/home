@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.cookie = `analytics_cookies=${analyticsAllowed}; max-age=31536000; path=/`;
 
         alert('Preferences saved!');
-        window.location.href = '/'; // Redirect to homepage
+        window.location.href = 'cornerroom.co.za'; // Redirect to homepage
     });
 
     // Reject All (except essential)
@@ -31,6 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.cookie = 'marketing_cookies=false; max-age=31536000; path=/';
         document.cookie = 'analytics_cookies=false; max-age=31536000; path=/';
         alert('Non-essential cookies disabled.');
-        window.location.href = '/';
+        window.location.href = 'cornerroom.co.za';
     });
 });
