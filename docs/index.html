@@ -72,7 +72,34 @@ initial-scale=1.0">
     
     <!-- Loading Screen -->
     <div id="loading-screen">
-        <img src="load.gif" alt="Loading...">
+       <link rel="image href=
+  <img src="load.gif" alt="Loading..." style="display:block;margin:auto;max-width:128px;max-height:128px;" />
+  <!-- Rust-colored loading spinner for laptop screens -->
+  <style>
+  @media (min-width: 1024px) {
+    #loading-spinner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .spinner {
+      width: 64px;
+      height: 64px;
+      border: 8px solid #b7410e; /* rust color */
+      border-top: 8px solid transparent; /* space in circumference */
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      background: transparent;
+    }
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+  }
+  </style>
+  <div id="loading-spinner">
+    <div class="spinner"></div>
+  </div>
     </div>
 
     <!-- Your Content -->
