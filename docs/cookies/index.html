@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie Preferences</title>
+    <link rel="stylesheet" href="cookie-prefs.css">
+</head>
+<body>
+    <div class="cookie-prefs-container">
+        <div class="cookie-prefs-header">
+            <img src="car.png" alt="Your Logo" class="cookie-prefs-logo">
+            <h2>Cookie Preferences</h2>
+        </div>
+
+        <div class="cookie-prefs-content">
+            <p>We use cookies to enhance your experience. Choose which types of cookies you allow:</p>
+            
+            <form id="cookiePrefsForm">
+                <!-- Essential Cookies (Always Enabled) -->
+                <div class="cookie-group">
+                    <div class="cookie-group-header">
+                        <h3>Essential Cookies</h3>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked disabled>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <p class="cookie-desc">Required for basic site functionality (e.g., login, security).</p>
+                </div>
+
+                <!-- Marketing Cookies -->
+                <div class="cookie-group">
+                    <div class="cookie-group-header">
+                        <h3>Marketing Cookies</h3>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="marketingCookies" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <p class="cookie-desc">Used for personalized ads and analytics.</p>
+                </div>
+
+                <!-- Analytics Cookies -->
+                <div class="cookie-group">
+                    <div class="cookie-group-header">
+                        <h3>Analytics Cookies</h3>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="analyticsCookies" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <p class="cookie-desc">Help us improve our website by collecting usage data.</p>
+                </div>
+            </form>
+        </div>
+
+        <div class="cookie-prefs-footer">
+            <button id="savePrefs" class="btn-save">Save Preferences</button>
+            <button id="rejectAll" class="btn-reject">Reject All</button>
+        </div>
+    </div>
+
+    <script src="cookie-prefs.js"></script>
+</body>
+</html>
