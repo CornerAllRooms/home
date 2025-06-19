@@ -40,8 +40,7 @@ initial-scale=1.0">
 
 <script src="accept.js"></script>
 <script src="auth.js"></script>
-<script src="cookies/marketing-prefs.js"></script>
-<script src="cookies/cookie-prefs-.js"></script>
+
 <script src="screen.js"></script>
 
 
@@ -73,10 +72,9 @@ initial-scale=1.0">
     
     <!-- Loading Screen -->
     <div id="loading-screen">
-       <link rel="image" href="load.gif" type="image/gif">
-       <link rel="stylesheet" href="style.css">
-    <!-- Rust-colored loading spinner for laptop screens -->
-  <style>
+        <img src="load.gif" alt="Loading...">
+    </div>
+<style>
   @media (min-width: 1024px) {
     #loading-spinner {
       display: flex;
@@ -106,6 +104,13 @@ initial-scale=1.0">
     }
   }
   </style>
+    <!-- Your Content -->
+    <div id="content">
+        <div id="accept" style="z-index: 9999;"></div>
+        <div id="menu" style="z-index: -1;"></div>
+        <div id="video-section" style="z-index: 10000;"></div>
+    </div>
+
     <script src="load.js"></script>
 
   <!-- Hamburger Icon -->
