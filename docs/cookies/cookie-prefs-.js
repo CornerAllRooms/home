@@ -21,16 +21,19 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set cookies (expires in 1 year)
         document.cookie = `marketing_cookies=${marketingAllowed}; max-age=31536000; path=/`;
         document.cookie = `analytics_cookies=${analyticsAllowed}; max-age=31536000; path=/`;
+        document.cookie = `cookies_accepted=true; max-age=31536000; path=/`;
 
-        alert('Preferences saved!');
-        window.location.href = '/'; // Redirect to homepage
+        // Redirect to cornerroom.co.za instead of just '/'
+        window.location.href = 'https://cornerroom.co.za';
     });
 
     // Reject All (except essential)
     rejectAllBtn.addEventListener('click', () => {
         document.cookie = 'marketing_cookies=false; max-age=31536000; path=/';
         document.cookie = 'analytics_cookies=false; max-age=31536000; path=/';
-        alert('Non-essential cookies disabled.');
-        window.location.href = '/';
+        document.cookie = 'cookies_accepted=true; max-age=31536000; path=/';
+        
+        // Redirect to cornerroom.co.za instead of just '/'
+        window.location.href = 'https://cornerroom.co.za';
     });
 });

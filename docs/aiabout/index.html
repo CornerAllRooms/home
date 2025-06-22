@@ -23,26 +23,33 @@
             color: #000;
             line-height: 1.6;
             text-align: center;
+            font-size: 0.9em; /* 5% smaller font size */
         }
 
         /* Background image section */
         .background-image {
-            background-image: url('./ai fitness.png');
+            background-image: url('/assets/ai fitness.png');
             background-size: cover;
             background-repeat: no-repeat;
-            height: 31vh;
-            position: fixed;
-            top: 0;
-            left: 0;
+            height: 34vh;
             width: 100%;
-            z-index: -1; /* Ensure it stays behind the content */
+        }
+
+        /* Main content container */
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 90vh;
         }
 
         /* Text container */
         .content {
-            position: fixed;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
-            margin-top: 40vh; /* Push content below the background image */
+            margin-top: 20px; /* Added space between image and box */
         }
 
         /* Styling for the paragraph */
@@ -50,21 +57,23 @@
             background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
             padding: 20px;
             border-radius: 10px;
-            display: inline-block;
             max-width: 800px;
+            width: 100%;
             margin: 0 auto;
         }
     </style>
 </head>
 <body>
-    <!-- Background image section -->
-    <div class="background-image"></div>
+    <div class="container">
+        <!-- Background image section -->
+        <div class="background-image"></div>
 
-    <!-- Content section -->
-    <div class="content">
-        <p>
-            Do not let outdated methods hold you back. While supplements and generic gym routines take time, and one-on-one trainers are limited by schedules, an AI Trainer is always ready to deliver personalized, data-driven workouts that adapt to you in real-time. Available 24/7, it is the smarter, faster way to achieve results, designed for a world where technology outpaces tradition. Step into the future of fitness and leave others behind.
-        </p>
+        <!-- Content section -->
+        <div class="content">
+            <p>
+                Do not let outdated methods hold you back. While supplements and generic gym routines take time, and one-on-one trainers are limited by schedules, an AI Trainer is always ready to deliver personalized, data-driven workouts that adapt to you in real-time. Available 24/7, it is the smarter, faster way to achieve results, designed for a world where technology outpaces tradition. Step into the future of fitness and leave others behind.
+            </p>
+        </div>
     </div>
 </body>
 </html>
