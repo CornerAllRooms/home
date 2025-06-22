@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="logo.png" type="image/x-icon">
+    <title>AI-Trainer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: relative;
+            background-color: #f5f5f5;
+        }
+        
+        .background-image {
+            background-image: url('./ground.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            height: 28vh;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: -1;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            padding: 20px;
+            z-index: 1;
+            margin-top: 30vh;
+        }
+        
+        .form-box {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        /* Checkbox with glisten animation */
+        .terms-container {
+            margin: 20px 0;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .terms-checkbox {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+        
+        .terms-checkbox input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+        
+        .checkmark {
+            position: relative;
+            height: 18px;
+            width: 18px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .terms-checkbox:hover .checkmark {
+            background-color: #f5f5f5;
+        }
+        
+        .terms-checkbox input:checked ~ .checkmark {
+            background-color: white;
+            border-color: black;
+        }
+        
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 5px;
+            top: 2px;
+            width: 5px;
+            height: 9px;
+            border: solid #004b49;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            z-index: 2;
+        }
+        
+        .terms-checkbox input:checked ~ .checkmark:after {
+            display: block;
+        }
+        
+        /* Glisten animation */
+        .terms-checkbox input:checked ~ .checkmark::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, #004b49, white, transparent);
+            animation: glisten 0.5s linear;
+            transform: translateX(-100%);
+        }
+        
+        @keyframes glisten {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .terms-text {
+            display: inline-block;
+            vertical-align: middle;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .policy-link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        
+        .policy-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Button styles - 50% smaller */
+        .subscribe-btn-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .subscribe-btn {
+            transition: opacity 0.3s;
+            max-width: 100px; /* 50% smaller */
+            width: 100%;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+        }
+        
+        .subscribe-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .titles {
+            color: #004b49;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        
+        /* Sign-up link styles - original color */
+        .signup-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .signup-link {
+            color: #3757d6; /* Original color */
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .signup-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            padding: 25px;
+            text-align: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-message {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .modal-buttons {
+            margin: 25px 0 15px 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .modal-btn {
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .continue-btn {
+            background: #004b49;
+            color: white;
+            text-decoration: none !important;
+        }
+        
+        .continue-btn:hover {
+            background: #003a38;
+        }
+        
+        .cancel-btn {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .cancel-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .security-info {
+            margin-top: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        
+        .security-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .security-toggle img {
+            width: 80px;
+            margin-right: 10px;
+        }
+        
+        .security-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            text-align: left;
+            font-size: 13px;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        .security-details.active {
+            max-height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-image"></div>
+    
+    <div class="container">
+        <div class="form-box">
+            <div class="terms-container">
+                <label class="terms-checkbox">
+                    <input type="checkbox" id="termsCheckbox">
+                    <span class="checkmark"></span>
+                    <span class="terms-text">I accept the goals and intent of the <a href="https://cornerroom.co.za/policy" class="policy-link" target="_blank">AI Fitness policy</a></span>
+                </label>
+            </div>
+            
+            <div class="subscribe-btn-container">
+                <button id="subscribeBtn" class="subscribe-btn" disabled>
+                    <img src="https://my.payfast.io/images/buttons/Subscribe/Light-Large-Subscribe.png" alt="Subscribe" style="width:100%">
+                </button>
+            </div>
+            
+            <h1 class="titles">Powered By Payfast</h1>
+            
+            <div class="signup-container">
+                <a href="https://cornerroom.co.za/lobby" class="signup-link">Sign-in/Sign-up</a> 
+                <span>and use for free</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Trust Modal -->
+    <div class="modal" id="trustModal">
+        <div class="modal-content">
+            <p class="modal-message">You'll be redirected to PayFast's secure payment page to complete your subscription</p>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn cancel-btn" id="cancelPayment">Cancel</button>
+                <button class="modal-btn continue-btn" id="continuePayment">Continue</button>
+            </div>
+            
+            <div class="security-info">
+                <div class="security-toggle" id="securityToggle">
+                    <img src="payfast.png" alt="PayFast">
+                    <span id="toggleText">More details ↓</span>
+                </div>
+                <div class="security-details" id="securityDetails">
+                    <p>PayFast is a PCI DSS Level 1 certified payment processor. Your payment details are encrypted and never stored on our servers.</p>
+                    <p>All transactions are secured with 256-bit SSL encryption and 3D Secure authentication.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const checkbox = document.getElementById('termsCheckbox');
+        const subscribeBtn = document.getElementById('subscribeBtn');
+        const trustModal = document.getElementById('trustModal');
+        const cancelBtn = document.getElementById('cancelPayment');
+        const continueBtn = document.getElementById('continuePayment');
+        const securityToggle = document.getElementById('securityToggle');
+        const securityDetails = document.getElementById('securityDetails');
+        const toggleText = document.getElementById('toggleText');
+        
+        // Terms checkbox functionality
+        checkbox.addEventListener('change', function() {
+            subscribeBtn.disabled = !this.checked;
+        });
+        
+        // Subscribe button shows modal
+        subscribeBtn.addEventListener('click', function(e) {
+            if(!checkbox.checked) return;
+            e.preventDefault();
+            trustModal.style.display = 'flex';
+        });
+        
+        // Cancel button closes modal
+        cancelBtn.addEventListener('click', function() {
+            trustModal.style.display = 'none';
+        });
+        
+        // Continue button redirects to PayFast (hidden URL)
+        continueBtn.addEventListener('click', function() {
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = 'https://payment.payfast.io/eng/process';
+            
+            // Hidden payment details
+            const fields = {
+                cmd: '_paynow',
+                receiver: '23908197',
+                return_url: 'https://cornerroom.co.za/AITrainer/brBFoydeF',
+                cancel_url: 'https://cornerroom.co.za',
+                notify_url: 'https://cornerroom.co.za/AITrainer/brBFoydeF',
+                amount: '49.99',
+                item_name: 'Ai Trainer',
+                subscription_type: '1',
+                recurring_amount: '49.99',
+                cycles: '0',
+                frequency: '3'
+            };
+            
+            for (const [name, value] of Object.entries(fields)) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                form.appendChild(input);
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
+        });
+        
+        // Security details toggle
+        let detailsVisible = false;
+        securityToggle.addEventListener('click', function() {
+            detailsVisible = !detailsVisible;
+            securityDetails.classList.toggle('active', detailsVisible);
+            toggleText.textContent = detailsVisible ? 'More details ↑' : 'More details ↓';
+        });
+    </script>
+</body>
+</html>

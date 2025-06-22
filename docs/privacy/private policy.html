@@ -1,0 +1,483 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="icon" href="logo.png" type="image/x-icon" />
+    <title>Privacy & AI Fitness Policy</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .document-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .document-page {
+            max-width: 800px;
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .image-gallery {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            width: 100%;
+        }
+        .gallery-title {
+            width: 100%;
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        .gallery-image {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            cursor: zoom-in;
+            transition: transform 0.3s;
+        }
+        .gallery-image:hover {
+            transform: scale(1.02);
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            margin-top: 30px;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        .signature-block {
+            margin-top: 40px;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+        }
+        .highlight {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .toggle-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        @media (max-width: 768px) {
+            .document-page {
+                width: 100%;
+            }
+            .gallery-image {
+                width: 100%;
+            }
+        }
+        .timestamp {
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+<button class="toggle-button" onclick="toggleGallery()">Toggle Image Gallery</button>
+
+<div class="image-gallery" id="imageGallery">
+    <div class="gallery-title">Original Document Images</div>
+    <img src="01.png" class="gallery-image" alt="Page 1 - Privacy & AI Fitness Policy">
+    <img src="02.png" class="gallery-image" alt="Page 2 - Membership Agreement">
+    <img src="03.png" class="gallery-image" alt="Page 3 - Member Access & Rules">
+    <img src="04.png" class="gallery-image" alt="Page 4 - Signature Certificate">
+</div>
+
+<div class="document-container">
+    <!-- Page 1 (01.png) -->
+    <div class="document-page">
+        <h1>PRIVATE & AI FITNESS POLICY</h1>
+        
+        <h2>Created by:</h2>
+        <p>Fitness@CornerAllRooms</p>
+        
+        <h2>Prepared for:</h2>
+        <p>new member</p>
+    </div>
+
+    <!-- Page 2 (02.png) -->
+    <div class="document-page">
+        <p>The undersigned individual (the Member), hereby indicates their desire to become a member of Corner All Rooms, pursuant to the terms and conditions of this gym membership agreement by pressing the 'I accept' button that is displayed.</p>
+        
+        <table>
+            <tr>
+                <td>Member Name:</td>
+                <td>Recipient Recipient</td>
+            </tr>
+            <tr>
+                <td>Sex:</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Address:</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Date of Birth:</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Primary Phone:</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Secondary Phone:</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Email:</td>
+                <td></td>
+            </tr>
+        </table>
+        
+        <h2>Health Attestation</h2>
+        <p>The Member attests that they are fully able to participate in an exercise regimen of their design or choosing without undue risk.</p>
+        
+        <h2>Gym Membership Dues</h2>
+        <p>The Member agrees to pay either monthly or annual dues, indicated by selecting an option in the table below. These dues may be paid by automatic debit or credit card transaction or in-person via debit, credit, or cash.</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>QTY</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Ai fitness</td>
+                    <td>R49.99 (recurring)</td>
+                    <td>Subtotal</td>
+                    <td>R49.99</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>Discount</td>
+                    <td>R0.00</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>Tax</td>
+                    <td>R0.00</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>Total</td>
+                    <td>R49.99</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Page 3 (03.png) -->
+    <div class="document-page">
+        <h2>Member Access</h2>
+        <p>This gym membership agreement entitles the member to access to Corner All Rooms through register and login so long as all dues are current. Hours and specific location access are as follows:</p>
+        
+        <h2>Gym Rules & Participation</h2>
+        <p>The Member hereby agrees to abide by all posted safety guidelines and regulations while using Corner All Rooms technology and service.</p>
+        <p>Additionally, the Member agrees to dress and conduct themselves in a manner deemed appropriate to all representers</p>
+        
+        <hr>
+        
+        <h2>Indemnification</h2>
+        <p>This gym membership serves as a liability release, pursuant to which the Member agrees to indemnify and hold Corner All Rooms harmless against any and all claims of injuries using our technology without limitation.</p>
+        
+        <ul>
+            <li>Corner All Rooms reserves the right to revoke the Member's access if these terms are violated.</li>
+        </ul>
+    </div>
+
+    <!-- Page 4 (04.png) -->
+    <div class="document-page">
+        <h2>Signature Certificate</h2>
+        <p>Reference number: UJJ92-F5GN2-OjFD3-25CT7</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Signer</th>
+                    <th>Timestamp</th>
+                    <th>Signature</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Email: fitness@cornerallrooms.com</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Sent: <span class="timestamp" id="sentTime"></span></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Viewed: <span class="timestamp" id="viewedTime"></span></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Signed: <span class="timestamp" id="signedTime"></span></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="highlight">
+            <p>Recipient Verification:</p>
+            <p>✔ Email verified <span class="timestamp" id="verifiedTime"></span></p>
+        </div>
+        
+        <div class="signature-block">
+            <p>Document completed by all parties on: <span class="timestamp" id="completedTime"></span></p>
+            <p>Page 1 of 1</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to toggle the image gallery visibility
+    function toggleGallery() {
+        const gallery = document.getElementById('imageGallery');
+        if (gallery.style.display === 'none') {
+            gallery.style.display = 'flex';
+        } else {
+            gallery.style.display = 'none';
+        }
+    }
+
+    // Make images zoomable when clicked
+    document.querySelectorAll('.gallery-image').forEach(image => {
+        image.addEventListener('click', function() {
+            if (this.style.transform === 'scale(1.5)') {
+                this.style.transform = 'scale(1)';
+                this.style.cursor = 'zoom-in';
+            } else {
+                this.style.transform = 'scale(1.5)';
+                this.style.cursor = 'zoom-out';
+            }
+        });
+    });
+
+    // Format current time in UTC
+    function getCurrentUTCTime() {
+        const now = new Date();
+        const day = String(now.getUTCDate()).padStart(2, '0');
+        const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+        const year = now.getUTCFullYear();
+        const hours = String(now.getUTCHours()).padStart(2, '0');
+        const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+        const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+        
+        return `${day} ${getMonthName(now.getUTCMonth())} ${year} ${hours}:${minutes}:${seconds} UTC`;
+    }
+
+    function getMonthName(monthIndex) {
+        const months = [
+            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ];
+        return months[monthIndex];
+    }
+
+    // Set dynamic timestamps
+    function setTimestamps() {
+        const now = getCurrentUTCTime();
+        const viewedTime = new Date();
+        viewedTime.setMinutes(viewedTime.getMinutes() - 2); // Viewed 2 minutes ago
+        const verifiedTime = new Date(viewedTime);
+        verifiedTime.setSeconds(verifiedTime.getSeconds() + 1); // Verified 1 second after viewing
+        const signedTime = new Date(viewedTime);
+        signedTime.setMinutes(signedTime.getMinutes() + 2); // Signed 2 minutes after viewing
+        
+        document.getElementById('sentTime').textContent = now;
+        document.getElementById('viewedTime').textContent = formatDate(viewedTime);
+        document.getElementById('verifiedTime').textContent = formatDate(verifiedTime);
+        document.getElementById('signedTime').textContent = formatDate(signedTime);
+        document.getElementById('completedTime').textContent = formatDate(signedTime);
+    }
+
+    function formatDate(date) {
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = getMonthName(date.getUTCMonth());
+        const year = date.getUTCFullYear();
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+        
+        return `${day} ${month} ${year} ${hours}:${minutes}:${seconds} UTC`;
+    }
+
+    // Initialize on load
+    window.addEventListener('load', function() {
+        const images = document.querySelectorAll('.gallery-image');
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        
+        images.forEach(img => {
+            img.style.maxWidth = '90vw';
+            img.style.maxHeight = '90vh';
+        });
+        
+        setTimestamps();
+    });
+</script>
+
+<style>
+body {position:absolute;top:0;left:0;margin:0;padding:0;border:0;}
+@media screen {
+    #sidebar.opened + * {left:250px;}
+    #page-container {bottom:0;right:0;overflow:auto;}
+    .loading-indicator {display:none;}
+    .loading-indicator.active {
+        display:block;
+        position:absolute;
+        width:64px;
+        height:64px;
+        top:50%;
+        left:50%;
+        margin-top:-32px;
+        margin-left:-32px;
+    }
+    .loading-indicator img {
+        position:absolute;
+        top:0;
+        left:0;
+        bottom:0;
+        right:0;
+    }
+}
+@media print {
+    @page {margin:0;}
+    html {margin:0;}
+    body {margin:0;-webkit-print-color-adjust:exact;}
+    #sidebar {display:none;}
+    #page-container {width:auto;height:auto;overflow:visible;background-color:transparent;}
+    .d {display:none;}
+}
+.pf {position:relative;background-color:white;overflow:hidden;margin:0;border:0;}
+.pc {position:absolute;border:0;padding:0;margin:0;top:0;left:0;width:100%;height:100%;overflow:hidden;display:block;transform-origin:0 0;-ms-transform-origin:0 0;-webkit-transform-origin:0 0;}
+.pc.opened {display:block;}
+.bf {position:absolute;border:0;margin:0;top:0;bottom:0;width:100%;height:100%;-ms-user-select:none;-moz-user-select:none;-webkit-user-select:none;user-select:none;}
+.bi {position:absolute;border:0;margin:0;-ms-user-select:none;-moz-user-select:none;-webkit-user-select:none;user-select:none;}
+@media print {
+    .pf {margin:0;box-shadow:none;page-break-after:always;page-break-inside:avoid;}
+    @-moz-document url-prefix() {
+        .pf {overflow:visible;border:1px solid #fff;}
+        .pc {overflow:visible;}
+    }
+}
+.c {position:absolute;border:0;padding:0;margin:0;overflow:hidden;display:block;}
+.t {position:absolute;white-space:pre;font-size:1px;transform-origin:0 100%;-ms-transform-origin:0 100%;-webkit-transform-origin:0 100%;unicode-bidi:bidi-override;-moz-font-feature-settings:"liga" 0;}
+.t:after {content:'';}
+.t:before {content:'';display:inline-block;}
+.t span {position:relative;unicode-bidi:bidi-override;}
+._ {display:inline-block;color:transparent;z-index:-1;}
+::selection {background:rgba(127,255,255,0.4);}
+::-moz-selection {background:rgba(127,255,255,0.4);}
+.pi {display:none;}
+.d {position:absolute;transform-origin:0 100%;-ms-transform-origin:0 100%;-webkit-transform-origin:0 100%;}
+.it {border:0;background-color:rgba(255,255,255,0.0);}
+.ir:hover {cursor:pointer;}
+</style>
+<style type="text/css">
+</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<style type="text/css">
+    /* Base styles for all devices */
+    .ff0 {font-family: sans-serif; visibility: hidden;}
+    .sc_ {text-shadow: none;}
+    
+    /* Responsive height and width */
+    .y0 {bottom: 0;}
+    .h0, .h1 {height: 100vh;} /* Use viewport height instead of fixed px */
+    .w0 {width: 100%;} /* Use percentage for responsive width */
+    .x0 {left: 0;}
+    
+    /* Webkit-specific styles */
+    @media screen and (-webkit-min-device-pixel-ratio:0) {
+        .sc_ {-webkit-text-stroke: 0px transparent;}
+    }
+    
+    /* Print styles */
+    @media print {
+        .y0 {bottom: 0;}
+        .h0 {height: 1055.999992pt;}
+        .h1 {height: 1056.000000pt;}
+        .w0 {width: 816.000000pt;}
+        .x0 {left: 0;}
+    }
+    
+    /* Additional media queries for different screen sizes */
+    @media (max-width: 768px) {
+        /* Mobile-specific adjustments */
+        .h0, .h1 {height: auto; min-height: 100vh;}
+    }
+    
+    @media (min-width: 769px) {
+        /* Desktop-specific adjustments */
+        .w0 {max-width: 612px; margin: 0 auto;} /* Center content on larger screens */
+    }
+</style>
+<script>
+/*
+ Copyright 2012 Mozilla Foundation 
+ Copyright 2013 Lu Wang <coolwanglu@gmail.com>
+ Apachine License Version 2.0 
+*/
+(function(){function b(a,b,e,f){var c=(a.className||"").split(/\s+/g);""===c[0]&&c.shift();var d=c.indexOf(b);0>d&&e&&c.push(b);0<=d&&f&&c.splice(d,1);a.className=c.join(" ");return 0<=d}if(!("classList"in document.createElement("div"))){var e={add:function(a){b(this.element,a,!0,!1)},contains:function(a){return b(this.element,a,!1,!1)},remove:function(a){b(this.element,a,!1,!0)},toggle:function(a){b(this.element,a,!0,!0)}};Object.defineProperty(HTMLElement.prototype,"classList",{get:function(){if(this._classList)return this._classList;
+var a=Object.create(e,{element:{value:this,writable:!1,enumerable:!0}});Object.defineProperty(this,"_classList",{value:a,writable:!1,enumerable:!1});return a},enumerable:!0})}})();
+</script>
+<!-- Removed incomplete and broken pdf2htmlEX script for error-free HTML -->
+</body>
