@@ -21,7 +21,7 @@
         }
         
         .background-image {
-            background-image: url('./ground.png');
+            background-image: url('/assets/01ground.png');
             background-size: cover;
             background-repeat: no-repeat;
             height: 28vh;
@@ -335,7 +335,7 @@
             
             <div class="security-info">
                 <div class="security-toggle" id="securityToggle">
-                    <img src="/assets/payfast.png" alt="PayFast">
+                    <img src="/assets/01payfast.png" alt="PayFast">
                     <span id="toggleText">More details ↓</span>
                 </div>
                 <div class="security-details" id="securityDetails">
@@ -378,7 +378,7 @@
         continueBtn.addEventListener('click', function() {
             const form = document.createElement('form');
             form.method = 'post';
-            form.action = 'https://payment.payfast.io/eng/process';
+            form.action = 'https: //payment.payfast.io/eng/process';
             
             // Hidden payment details
             const fields = {
