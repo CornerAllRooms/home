@@ -14,7 +14,7 @@ body, html {
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
-  z-index: 1000; /* Ensure it's above other content */
+  z-index: 100000; /* Ensure it's above other content */
 }
 
 /* Terms Text */

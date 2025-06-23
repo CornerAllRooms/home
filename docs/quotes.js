@@ -1,5 +1,6 @@
+
 document.addEventListener('DOMContentLoaded', function() {
-  // DOM Elements
+  // ============== DOM Elements ==============
   const popup = document.getElementById('team-popup');
   const allowNotifications = document.getElementById('allow-notifications');
   const teamOptions = document.querySelectorAll('.team-option');
@@ -11,70 +12,161 @@ document.addEventListener('DOMContentLoaded', function() {
   cancelBtn.textContent = 'Cancel';
   document.querySelector('.popup-content').appendChild(cancelBtn);
 
-  // Initial Checks
-  const savedTeam = localStorage.getItem('selectedTeam');
-  const popupDismissed = localStorage.getItem('popupDismissed');
+  // ============== Install Prompt ==============
+  let deferredPrompt;
+  const installButton = document.createElement('button');
+  installButton.className = 'install-btn';
+  installButton.textContent = 'Install';
+  document.querySelector('.popup-content').prepend(installButton);
+  installButton.style.display = 'none';
 
-  if (savedTeam) {
-    logo.href = `${savedTeam}.png`;
-    return;
-  }
-
-  if (popupDismissed) {
-    return;
-  }
-
-  // Show popup after 20s delay - FIXED VERSION
-  setTimeout(function() {
-    popup.style.display = 'block';
-    // Force reflow to ensure animation triggers
-    void popup.offsetWidth;
-    popup.classList.add('show');
-  }, 20000);
-
-  // Cancel button functionality
-  cancelBtn.addEventListener('click', function() {
-    popup.classList.remove('show');
-    setTimeout(function() {
-      popup.style.display = 'none';
-      localStorage.setItem('popupDismissed', 'true');
-    }, 500);
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installButton.style.display = 'block';
   });
 
-  // Team Selection Logic
+  installButton.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        installButton.style.display = 'none';
+        deferredPrompt = null;
+      }
+    }
+  });
+
+  // ============== Storage Handling ==============
+  const storageAvailable = (() => {
+    try {
+      const test = '__storage_test__';
+      localStorage.setItem(test, test);
+      localStorage.removeItem(test);
+      return true;
+    } catch(e) {
+      return false;
+    }
+  })();
+
+  // ============== Team Selection ==============
   teamOptions.forEach(btn => {
     btn.style.pointerEvents = 'none';
+    btn.dataset.originalText = btn.textContent;
   });
 
-  allowNotifications.addEventListener('change', function(e) {
+  allowNotifications.addEventListener('change', (e) => {
     teamOptions.forEach(btn => {
       btn.style.pointerEvents = e.target.checked ? 'auto' : 'none';
     });
   });
 
+  // ============== Popup Logic ==============
+  setTimeout(() => {
+    popup.style.display = 'block';
+    void popup.offsetWidth;
+    popup.classList.add('show');
+  }, 20000);
+
+  // ============== Event Handlers ==============
+  cancelBtn.addEventListener('click', () => {
+    popup.classList.remove('show');
+    setTimeout(() => {
+      popup.style.display = 'none';
+      if (storageAvailable) localStorage.setItem('popupDismissed', 'true');
+    }, 500);
+  });
+
   teamOptions.forEach(option => {
     option.addEventListener('click', async function() {
       if (allowNotifications.checked) {
-        const team = option.dataset.team;
-        localStorage.setItem('selectedTeam', team);
+        const team = this.dataset.team;
+        this.textContent = 'Applying...';
+        
+        // Visual change immediately
         logo.href = `${team}.png`;
         
+        // Save if possible
+        if (storageAvailable) localStorage.setItem('selectedTeam', team);
+        
+        // Hide popup
         popup.classList.remove('show');
-        setTimeout(function() {
+        setTimeout(() => {
           popup.style.display = 'none';
+          this.textContent = this.dataset.originalText;
         }, 500);
         
-        await setupNotifications(team);
+        // Setup notifications
+        try {
+          await setupNotifications(team);
+        } catch(e) {
+          console.log('Notification setup failed:', e);
+        }
       }
     });
   });
 
-  // ... (rest of your notification functions remain exactly the same) ...
-});
-  // ... (keep all previous code until the quotes section) ...
+  // ============== Notification System ==============
+  async function setupNotifications(team) {
+    if (!('Notification' in window)) return;
+    
+    let registration;
+    if ('serviceWorker' in navigator) {
+      try {
+        registration = await navigator.serviceWorker.register('sw.js');
+      } catch(e) {
+        console.log('ServiceWorker failed, using fallback');
+      }
+    }
+    
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      if (registration) {
+        scheduleNotifications(team, registration);
+      } else {
+        showFallbackNotification(team);
+      }
+    }
+  }
 
-async function fetchQuote(team) {
-  const quotes = {
+  function scheduleNotifications(team, registration) {
+    // Immediate notification
+    sendNotification(team, registration);
+    
+    // Daily at 7AM (Sun-Thu)
+    setInterval(() => {
+      const now = new Date();
+      if (now.getHours() === 7 && now.getMinutes() === 0 && now.getDay() !== 5 && now.getDay() !== 6) {
+        sendNotification(team, registration);
+      }
+    }, 60000);
+  }
+
+  function sendNotification(team, registration) {
+    const quote = getRandomQuote(team);
+    if (registration) {
+      registration.showNotification('CornerRoom', {
+        body: quote,
+        icon: `${team}.png`, // FIXED: Properly closed backtick
+        data: { url: 'https://lobby.cornerroom.co.za' }
+      });
+    } else {
+      new Notification('CornerRoom', {
+        body: quote,
+        icon: `${team}.png` // FIXED: Properly closed backtick
+      });
+    }
+  }
+
+  function showFallbackNotification(team) {
+    const quote = getRandomQuote(team);
+    new Notification('CornerRoom', {
+      body: quote,
+      icon: `${team}.png` // FIXED: Properly closed backtick
+    });
+  }
+  function getRandomQuote(team) {
+    const quotes = {
     'black': [
       "Solitude forges stronger men than crowds ever could.",
       "A man at peace alone is a storm in waiting.",
@@ -324,17 +416,18 @@ async function fetchQuote(team) {
   };
 
   const randomIndex = Math.floor(Math.random() * quotes[team].length);
-    return { text: quotes[team][randomIndex] };
-  }
-
-  function showNotification(team, quote) {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready.then(registration => {
-        registration.showNotification('CornerRoom', {
-          body: quote.text,
-          icon: `${team}.png`,
-          data: { url: 'https://lobby.cornerroom.co.za' }
-        });
-      });
+      return quotes[team][randomIndex];
     }
-  }
+  
+    function showNotification(team, quote) {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(registration => {
+          registration.showNotification('CornerRoom', {
+            body: quote,
+            icon: `${team}.png`,
+            data: { url: 'https://lobby.cornerroom.co.za' }
+          });
+        });
+      }
+    }
+  });

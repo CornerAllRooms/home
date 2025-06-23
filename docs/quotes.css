@@ -6,7 +6,7 @@
   width: 100%;
   background: rgba(0, 0, 0, 0.8);
   border-bottom: 1px solid white;
-  z-index: 1000;
+  z-index: 100001;
   padding: 8px 0;
   display: none;
   transition: top 0.5s ease-out; /* Changed from animation */
@@ -51,15 +51,20 @@
 }
 
 .team-option {
-  padding: 4px 10px;
+  padding: 3px 12px; /* Slimmer vertical padding */
   border-radius: 15px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 9px;
   background: #e0e0e0;
   color: #555;
   transition: all 0.2s;
   border: none;
-  min-width: 50px;
+  min-width: 0; /* Allow natural width */
+  flex: 0 0 auto; /* Prevent stretching */
+  height: 23px; /* Fixed height */
+  line-height: 18px; /* Better vertical alignment */
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
 /* Color Only Appears on Interaction */
@@ -131,4 +136,26 @@
 
 .popup h2 {
   padding-right: 40px; /* Prevent text overlap */
+}
+.install-btn {
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  background: #FF4500;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.install-btn:hover {
+  opacity: 0.9;
+}
+
+/* Adjust popup h2 positioning */
+.popup h2 {
+  padding: 0 60px; /* Space for both buttons */
 }
