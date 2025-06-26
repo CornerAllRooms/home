@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       new Notification('CornerRoom', {
         body: quote,
-        icon: `${team}.png` // FIXED: Properly closed backtick
+        icon: `docs/${team}.png`// FIXED: Properly closed backtick
       });
     }
   }
@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const quote = getRandomQuote(team);
     new Notification('CornerRoom', {
       body: quote,
-      icon: `${team}.png` // FIXED: Properly closed backtick
+      icon: `docs/${team}.png`// FIXED: Properly closed backtick
     });
   }
   function getRandomQuote(team) {
