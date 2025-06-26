@@ -147,3 +147,10 @@ input:checked + .slider:before {
 .btn-reject:hover {
     background: #f0f4ff;
 }
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
