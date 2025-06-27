@@ -1,122 +1,107 @@
-// Service Worker for CornerRoom PWA
-const CACHE_NAME = 'cornerroom-cache-v2';
+// Service Worker for CornerRoom PWA - Complete Subdirectory Solution
+const CACHE_NAME = 'cornerroom-cache-v4';
 const ASSETS_TO_CACHE = [
   '/',
-  '/index.html',
+  '/styles.css',
   '/quotes.js',
   '/quotes.css',
   '/manifest.json',
   '/black.png',
   '/gold.png',
   '/green-gold.png',
-  '/original.png'
+  '/original.png',
+  '/load.gif',
+  '/load.css',
+  '/menu.css',
+  '/accept.css',
+  '/screen.js',
+  '/auth.js',
+  '/accept.js'
 ];
 
-// Install event - cache essential assets
+// List of all subdirectories to bypass
+const SUBDIRECTORIES = [
+  '/aitrainer/',
+  '/tcs/',
+  '/aichat/',
+  '/aiabout/',
+  '/privacy/',
+  '/saferoom/',
+  '/cookies/'
+];
+
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Install event');
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('[Service Worker] Caching all essential assets');
-        return cache.addAll(ASSETS_TO_CACHE);
-      })
-      .then(() => {
-        console.log('[Service Worker] Skip waiting');
-        return self.skipWaiting();
-      })
+      .then(cache => cache.addAll(ASSETS_TO_CACHE))
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activate event');
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log('[Service Worker] Deleting old cache:', cache);
-            return caches.delete(cache);
-          }
+        cacheNames.map(cache => {
+          if (cache !== CACHE_NAME) return caches.delete(cache);
         })
       );
-    }).then(() => {
-      console.log('[Service Worker] Claiming clients');
-      return self.clients.claim();
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
-// Fetch event - serve from cache first, then network
 self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') return;
+  const requestUrl = new URL(event.request.url);
+  const pathname = requestUrl.pathname;
 
-  // Handle navigation requests specially
-  if (event.request.mode === 'navigate') {
+  // Bypass SW completely for all subdirectories
+  if (SUBDIRECTORIES.some(subdir => pathname.startsWith(subdir))) {
+    return fetch(event.request);
+  }
+
+  // Bypass for non-GET requests and non-whitelisted extensions
+  if (event.request.method !== 'GET') return;
+  if (/\.(json|xml|php|cgi|py)$/i.test(pathname)) return;
+
+  // Special handling for root HTML
+  if (event.request.mode === 'navigate' && pathname === '/') {
     event.respondWith(
-      caches.match('/index.html')
-        .then((cachedResponse) => {
-          return cachedResponse || fetch(event.request);
+      fetch(event.request)
+        .then(networkResponse => {
+          // Only cache successful root index.html
+          if (networkResponse.ok) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME)
+              .then(cache => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
         })
+        .catch(() => caches.match('/index.html'))
     );
     return;
   }
 
-  // For all other requests
+  // Cache-first for all other assets
   event.respondWith(
     caches.match(event.request)
-      .then((cachedResponse) => {
-        // Return cached response if found
-        if (cachedResponse) {
-          console.log(`[Service Worker] Serving from cache: ${event.request.url}`);
-          return cachedResponse;
-        }
-        
-        // Otherwise fetch from network
-        console.log(`[Service Worker] Fetching from network: ${event.request.url}`);
-        return fetch(event.request)
-          .then((response) => {
-            // Cache the new response if successful
-            if (response && response.status === 200) {
-              const responseToCache = response.clone();
-              caches.open(CACHE_NAME)
-                .then((cache) => {
-                  cache.put(event.request, responseToCache);
-                });
-            }
-            return response;
-          })
-          .catch((error) => {
-            console.log('[Service Worker] Fetch failed:', error);
-            // Optional: Return a fallback response here
-          });
-      })
+      .then(cachedResponse => cachedResponse || 
+        fetch(event.request).then(response => {
+          // Cache new responses (except HTML)
+          if (response.ok && !response.headers.get('content-type').includes('text/html')) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME)
+              .then(cache => cache.put(event.request, responseToCache));
+          }
+          return response;
+        })
+      )
   );
 });
 
-// Notification click handler
-self.addEventListener('notificationclick', (event) => {
-  console.log('[Service Worker] Notification click received');
+// Keep your existing notification handlers
+self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil(
-    clients.openWindow(event.notification.data?.url || 'https://cornerroom.co.za')
-  );
-});
-
-// Push event handler (if you want push notifications)
-self.addEventListener('push', (event) => {
-  console.log('[Service Worker] Push received');
-  const data = event.data?.json();
-  const title = data?.title || 'CornerRoom';
-  const options = {
-    body: data?.body || 'New notification',
-    icon: data?.icon || '/black.png',
-    data: { url: data?.url || 'https://cornerroom.co.za' }
-  };
-
-  event.waitUntil(
-    self.registration.showNotification(title, options)
+    clients.openWindow(event.notification.data?.url || '/')
   );
 });
