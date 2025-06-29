@@ -1,16 +1,16 @@
 // Service Worker for CornerRoom PWA - Complete Subdirectory Solution
-const CACHE_NAME = 'cornerroom-cache-v4';
+const CACHE_NAME = 'cornerroom-cache-v5';
 const ASSETS_TO_CACHE = [
-  '/',
+  '/index.html',
   '/styles.css',
   '/quotes.js',
   '/quotes.css',
   '/manifest.json',
-  '/black.png',
-  '/gold.png',
-  '/green-gold.png',
-  '/original.png',
-  '/load.gif',
+  '/docs/black.png',
+  '/docs/gold.png',
+  '/docs/green-gold.png',
+  '/docs/original.png',
+  '/docs/load.gif',
   '/load.css',
   '/menu.css',
   '/accept.css',
@@ -64,7 +64,7 @@ self.addEventListener('fetch', (event) => {
   if (/\.(json|xml|php|cgi|py)$/i.test(pathname)) return;
 
   // Special handling for root HTML
-  if (event.request.mode === 'navigate' && pathname === '/') {
+  if (event.request.mode === 'navigate' && pathname === '/index.html') {
     event.respondWith(
       fetch(event.request)
         .then(networkResponse => {
@@ -102,6 +102,6 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil(
-    clients.openWindow(event.notification.data?.url || '/')
+    clients.openWindow(event.notification.data?.url || '/index.html')
   );
 });
