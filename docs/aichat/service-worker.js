@@ -1,14 +1,15 @@
-const CACHE_NAME = 'chatting-corner-v2';
+const CACHE_NAME = 'chatting-corner-v3';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/script.js',
-  '/home.js',
-  '/CAR.png',
-  '/logo.png',
-  '/gemini.svg',
-  '/manifest.json'
+  '/aichat/',
+  '/aichat/index.html',
+  '/aichat/style.css',
+  '/aichat/script.js',
+  '/aichat/home.js',
+  '/aichat/car.png',
+   '/aichat/trash.png',
+  '/aichat/logo.png',
+  '/aichat/gemini.svg',
+  '/aichat/manifest.json'
 ];
 self.addEventListener('fetch', (event) => {
   if (event.request.url.startsWith('http:')) {

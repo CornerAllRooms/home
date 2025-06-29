@@ -12,9 +12,9 @@ let isResponseGenerating = false;
 let deferredPrompt = null;
 
 // Secure API configuration (replace with your actual API_KEY)
-const API_KEY = {
+const GROQ_API = {
   url: "https://api.groq.com/openai/v1/chat/completions",
-  apiKey: "API_KEY", // REPLACE THIS WITH YOUR ACTUAL KEY
+  apiKey: "GROQ_API_KEY", // REPLACE THIS WITH YOUR ACTUAL KEY
   model: "llama3-70b-8192",
 
   async getResponse(prompt) {
@@ -155,7 +155,7 @@ const initApp = () => {
   deleteChatButton.addEventListener("click", () => {
     if (confirm("Delete all chats?")) {
       localStorage.removeItem("saved-chats");
-      chatContainer.innerHTML = '';
+      chatContainer.innerHTML = 'trash.svg';
       document.body.classList.remove("hide-header");
     }
   });
@@ -174,7 +174,7 @@ const initApp = () => {
 async function testConnection() {
   const testDiv = createMessageElement('<div class="message-content"><p class="text"></p></div>', "incoming");
   chatContainer.appendChild(testDiv);
-  const testResponse = await API_KEY.getResponse("Hello Roomie");
+  const testResponse = await process.env.GROQ_API.getResponse("Hello Roomie");
   testDiv.querySelector(".text").textContent = testResponse.includes("🔴") 
     ? "❌ Connection failed" 
     : "✅ Connected to Chatting Corner";
