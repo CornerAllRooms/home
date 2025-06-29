@@ -15,7 +15,7 @@ let deferredPrompt = null;
 const GROQ_API = {
   url: "https://api.groq.com/openai/v1/chat/completions",
   apiKey: "GROQ_API_KEY", // REPLACE THIS WITH YOUR ACTUAL KEY
-  model: "llama3-70b-8192",
+  model: "meta-llama/llama-4-scout-17b-16e-instruct",
 
   async getResponse(prompt) {
     try {

@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
         this.textContent = 'Applying...';
         
         // Visual change immediately
-        logo.href = `/docs/${team}.png`;
+        logo.href = `/${team}.png`;
         
         // Save if possible
         if (storageAvailable) localStorage.setItem('selectedTeam', team);
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let registration;
     if ('serviceWorker' in navigator) {
       try {
-        registration = await navigator.serviceWorker.register('/docs/sw.js');
+        registration = await navigator.serviceWorker.register('/sw.js');
       } catch(e) {
         console.log('ServiceWorker failed, using fallback');
       }
@@ -147,13 +147,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (registration) {
       registration.showNotification('CornerRoom', {
         body: quote,
-        icon: `/docs/${team}.png`, // FIXED: Properly closed backtick
+        icon: `/${team}.png`, // FIXED: Properly closed backtick
         data: { url: 'https://lobby.cornerroom.co.za' }
       });
     } else {
       new Notification('CornerRoom', {
         body: quote,
-        icon: `/docs/${team}.png`// FIXED: Properly closed backtick
+        icon: `/${team}.png`// FIXED: Properly closed backtick
       });
     }
   }
@@ -162,12 +162,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const quote = getRandomQuote(team);
     new Notification('CornerRoom', {
       body: quote,
-      icon: `/docs/${team}.png`// FIXED: Properly closed backtick
+      icon: `/${team}.png`// FIXED: Properly closed backtick
     });
   }
   if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/docs/sw.js')
+    navigator.serviceWorker.register('/sw.js')
       .then(registration => console.log('SW registered:', registration))
       .catch(error => console.log('SW registration failed:', error));
   });
@@ -918,10 +918,39 @@ document.addEventListener('DOMContentLoaded', function() {
         navigator.serviceWorker.ready.then(registration => {
           registration.showNotification('CornerRoom', {
             body: quote,
-            icon: `/docs/${team}.png`,
+            icon: `/${team}.png`,
             data: { url: 'https://lobby.cornerroom.co.za' }
           });
         });
       }
     }
   });
+  // In your quotes.js
+teamOptions.forEach(option => {
+  option.addEventListener('click', function() {
+    const team = this.dataset.team;
+    
+    // Update Theme
+    ThemeManager.applyTheme(team);
+    
+    // Rest of your logic...
+    logo.href = `/${team}.png`;
+    if (Notification.permission === 'granted') {
+      showTeamNotification(team);
+    }
+  });
+});
+
+function showTeamNotification(team) {
+  const quote = getRandomQuote(team);
+  const theme = ThemeManager.THEMES[team];
+  
+  new Notification('CornerRoom', {
+    body: quote,
+    icon: theme.icon,
+    badge: theme.icon,
+    vibrate: [100, 50, 100],
+    data: { url: '/?team=' + team },
+    tag: 'team-update'
+  });
+}

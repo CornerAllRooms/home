@@ -5,6 +5,31 @@
 content="width=device-width, 
 initial-scale=1.0">
 <head>
+  <!-- Dynamic Theme Color -->
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-TileColor" content="#000000">
+  
+  <!-- Favicon Links -->
+  <link rel="icon" href="/original.png" type="image/png">
+  <link rel="apple-touch-icon" href="/original.png">
+  <link rel="mask-icon" href="/original.png" color="#000000">
+  
+  <!-- Manifest -->
+  <link rel="manifest" href="/manifest.json" crossorigin="use-credentials">
+  
+  <!-- Theme CSS -->
+  <style>
+    :root {
+      --primary: #FF4337;
+      --secondary: rgb(113, 113, 113);
+      --accent: white;
+    }
+    .dark-mode {
+      --primary: #ff4500;
+      --secondary: rgb(113, 113, 113);
+    }
+  </style>
+<head>
    <!-- add icon link -->
   <link rel="icon" href=
   "logo.png"
@@ -262,7 +287,7 @@ register_page_widgets(document.getElementById('pdf-page-1'));
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/docs/sw.js')  // Path to your sw.js
+      navigator.serviceWorker.register('/sw.js')  // Path to your sw.js
         .then(registration => {
           console.log('ServiceWorker registered:', registration.scope);
         })

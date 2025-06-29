@@ -1,10 +1,10 @@
 {
     "name": "Chatting Corner",
     "short_name": "CC",
-    "start_url": "cornerroom.co.za/aichat", 
+    "start_url": "https://cornerroom.co.za/aichat", 
     "display": "standalone",
     "background_color": "#ffffff",
-    "theme_color": "#4CAF50",
+    "theme_color": "#4285f4",
     "description": "A friendly chat application",  
     "orientation": "portrait", 
     "icons": [

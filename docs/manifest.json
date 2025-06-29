@@ -1,30 +1,40 @@
 {
   "name": "CornerRoom",
-  "short_name": "CAR",
-  "start_url": "https://cornerroom.co.za",
+  "short_name": "C.A.R",
+  "start_url": "https://cornerroom.co.za", // Default team
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#000000",
+  "theme_color": "#000000", // Will be dynamically updated
   "icons": [
+    // Default icon (required)
     {
-      "src": "/docs/black.png",
+      "src": "/original.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    // Team-specific icons (optional but recommended)
+    {
+      "src": "/black.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any",
+      "team": "black" // Custom property
     },
     {
-      "src": "/docs/gold.png",
+      "src": "/gold.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any",
+      "team": "gold"
     },
     {
-      "src": "/docs/green-gold.png",
+      "src": "/green-gold.png",
       "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/docs/original.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any",
+      "team": "green-gold"
     }
   ]
 }
+"purpose": "any maskable"

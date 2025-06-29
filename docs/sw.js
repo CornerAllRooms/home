@@ -1,22 +1,41 @@
 // Service Worker for CornerRoom PWA - Complete Subdirectory Solution
-const CACHE_NAME = 'cornerroom-cache-v5';
+// Add this to your activate event in sw.js
+caches.keys().then(cacheNames => {
+  return Promise.all(
+    cacheNames.map(cache => caches.delete(cache))
+  );
+})
+const CACHE_NAME = 'cornerroom-cache-v7';
+const ICONS_TO_CACHE = [
+  '/black.png',
+  '/gold.png',
+  '/green-gold.png',
+  '/original.png'
+];
 const ASSETS_TO_CACHE = [
   '/index.html',
   '/styles.css',
   '/quotes.js',
   '/quotes.css',
   '/manifest.json',
-  '/docs/black.png',
-  '/docs/gold.png',
-  '/docs/green-gold.png',
-  '/docs/original.png',
-  '/docs/load.gif',
+  '/black.png',
+  '/gold.png',
+  '/green-gold.png',
+  '/original.png',
+  '/load.gif',
   '/load.css',
   '/menu.css',
   '/accept.css',
   '/screen.js',
   '/auth.js',
   '/accept.js'
+];
+const THEME_ASSETS = [
+  '/black.png',
+  '/gold.png',
+  '/green-gold.png',
+  '/original.png',
+  '/manifest.json'
 ];
 
 // List of all subdirectories to bypass
@@ -104,4 +123,43 @@ self.addEventListener('notificationclick', event => {
   event.waitUntil(
     clients.openWindow(event.notification.data?.url || '/index.html')
   );
+});
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll([...THEME_ASSETS, '/']))
+      .then(() => self.skipWaiting())
+  );
+});
+ if (THEME_ASSETS.some(asset => e.request.url.includes(asset))) {
+    e.respondWith(
+      caches.match(e.request)
+        .then(cached => cached || fetch(e.request))
+    );
+    return;
+  }
+  self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  
+  // Intercept manifest requests
+  if (url.pathname.endsWith('manifest.json')) {
+    event.respondWith(
+      (async () => {
+        // Get user's team preference
+        const team = await getTeamPreference(); // Implement this (e.g., from IndexedDB)
+        
+        // Clone and modify manifest
+        const baseManifest = await fetch(event.request);
+        const manifest = await baseManifest.json();
+        
+        // Update for current team
+        manifest.icons = manifest.icons.map(icon => ({
+          ...icon,
+          src: icon.team === team ? icon.src : `/default-${icon.sizes}.png`
+        }));
+        
+        return new Response(JSON.stringify(manifest));
+      })()
+    );
+  }
 });
