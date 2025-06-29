@@ -5,6 +5,27 @@
 content="width=device-width, 
 initial-scale=1.0">
 <head>
+  <script>
+// Basic protection against right-click
+document.addEventListener('contextmenu', (e) => {
+  if (process.env.NODE_ENV === 'production') {
+    e.preventDefault();
+    alert('Inspection disabled in production');
+  }
+});
+
+// Disable keyboard shortcuts (Ctrl+Shift+I, F12)
+document.addEventListener('keydown', (e) => {
+  if (process.env.NODE_ENV === 'production' && (
+    e.ctrlKey && e.shiftKey && e.key === 'I' ||
+    e.key === 'F12' ||
+    e.ctrlKey && e.key === 'u'
+  )) {
+    e.preventDefault();
+    alert('Developer tools are restricted');
+  }
+});
+</script>
   <!-- Dynamic Theme Color -->
   <meta name="theme-color" content="#000000">
   <meta name="msapplication-TileColor" content="#000000">

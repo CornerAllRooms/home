@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script>
+// Basic protection against right-click
+document.addEventListener('contextmenu', (e) => {
+  if (process.env.NODE_ENV === 'production') {
+    e.preventDefault();
+    alert('Inspection disabled in production');
+  }
+});
+
+// Disable keyboard shortcuts (Ctrl+Shift+I, F12)
+document.addEventListener('keydown', (e) => {
+  if (process.env.NODE_ENV === 'production' && (
+    e.ctrlKey && e.shiftKey && e.key === 'I' ||
+    e.key === 'F12' ||
+    e.ctrlKey && e.key === 'u'
+  )) {
+    e.preventDefault();
+    alert('Developer tools are restricted');
+  }
+});
+</script>
     <link rel="icon" href="logo.png" type="image/x-icon">
     <title>AI-Trainer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
