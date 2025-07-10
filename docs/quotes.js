@@ -159,8 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
       new Notification('CornerRoom', {
         body: quote,
         icon: `/${team}.png`
-      });
-    }
+    });
   }
 
   function showFallbackNotification(team) {
@@ -927,36 +926,6 @@ document.addEventListener('DOMContentLoaded', function() {
             icon: `/${team}.png`,
             data: { url: 'https://lobby.cornerroom.co.za' }
           });
-        });
       }
-    }
-  });
-  // In your quotes.js
-teamOptions.forEach(option => {
-  option.addEventListener('click', function() {
-    const team = this.dataset.team;
-    
-    // Update Theme
-    ThemeManager.applyTheme(team);
-    
-    // Rest of your logic...
-    logo.href = `/${team}.png`;
-    if (Notification.permission === 'granted') {
-      showTeamNotification(team);
-    }
-  });
-});
-
-function showTeamNotification(team) {
-  const quote = getRandomQuote(team);
-  const theme = ThemeManager.THEMES[team];
-  
-  new Notification('CornerRoom', {
-    body: quote,
-    icon: theme.icon,
-    badge: theme.icon,
-    vibrate: [100, 50, 100],
-    data: { url: '/?team=' + team },
-    tag: 'team-update'
-  });
-}
+    });
+  }
