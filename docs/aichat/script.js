@@ -66,17 +66,6 @@ const showTypingEffect = (text, textElement, incomingMessageDiv) => {
   }, 20);
 };
 
-const generateAPIResponse = async (incomingMessageDiv) => {
-  const textElement = incomingMessageDiv.querySelector(".text");
-  try {
-    const apiResponse = await GROQ_API.getResponse(userMessage);
-    showTypingEffect(apiResponse, textElement, incomingMessageDiv);
-  } catch (error) {
-    textElement.textContent = "⚠️ Failed to generate response";
-    isResponseGenerating = false;
-    incomingMessageDiv.querySelector(".icon")?.classList.remove("hide");
-  }
-};
 
 // Chat functions
 const handleOutgoingChat = () => {
@@ -109,14 +98,29 @@ const showLoadingAnimation = () => {
         <div class="loading-bar"></div>
       </div>
     </div>
-    <span class="icon material-symbols-rounded">content_copy</span>`;
+    <span class="icon material-symbols-rounded hide">content_copy</span>`;
   
-  const incomingMessageDiv = createMessageElement(html, "incoming", "loading");
+  const incomingMessageDiv = createMessageElement(html, "incoming");
   chatContainer.appendChild(incomingMessageDiv);
   chatContainer.scrollTo(0, chatContainer.scrollHeight);
   generateAPIResponse(incomingMessageDiv);
 };
-
+const generateAPIResponse = async (incomingMessageDiv) => {
+  const textElement = incomingMessageDiv.querySelector(".text");
+  const loadingIndicator = incomingMessageDiv.querySelector(".loading-indicator");
+  
+  try {
+    const apiResponse = await GROQ_API.getResponse(userMessage);
+    // Remove loading indicator before showing text
+    if (loadingIndicator) loadingIndicator.remove();
+    showTypingEffect(apiResponse, textElement, incomingMessageDiv);
+  } catch (error) {
+    if (loadingIndicator) loadingIndicator.remove();
+    textElement.textContent = `⚠️ Error: ${error.message}`;
+    isResponseGenerating = false;
+    incomingMessageDiv.querySelector(".icon")?.classList.remove("hide");
+  }
+};
 // Utility functions
 const createMessageElement = (content, ...classes) => {
   const div = document.createElement("div");
@@ -155,7 +159,7 @@ const initApp = () => {
   deleteChatButton.addEventListener("click", () => {
     if (confirm("Delete all chats?")) {
       localStorage.removeItem("saved-chats");
-      chatContainer.innerHTML = 'trash.svg';
+      chatContainer.innerHTML = '';
       document.body.classList.remove("hide-header");
     }
   });
@@ -174,10 +178,24 @@ const initApp = () => {
 async function testConnection() {
   const testDiv = createMessageElement('<div class="message-content"><p class="text"></p></div>', "incoming");
   chatContainer.appendChild(testDiv);
-  const testResponse = await process.env.GROQ_API.getResponse("Hello Roomie");
-  testDiv.querySelector(".text").textContent = testResponse.includes("🔴") 
-    ? "❌ Connection failed" 
-    : "✅ Connected to Chatting Corner";
+  
+  try {
+    const testResponse = await GROQ_API.getResponse("Hello");
+    testDiv.querySelector(".text").textContent = testResponse.includes("🔴") 
+      ? "❌ Connection failed" 
+      : "✅ Connected to Chatting Corner";
+  } catch (error) {
+    testDiv.querySelector(".text").textContent = `❌ Connection error: ${error.message}`;
+  }
 }
-
 document.addEventListener("DOMContentLoaded", initApp);
+// Add this to your initApp() function
+toggleThemeButton.addEventListener("click", () => {
+  document.body.classList.toggle("dark-mode");
+  localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+});
+
+// Add this at the start of initApp() to load saved preference
+if (localStorage.getItem("darkMode") === "true") {
+  document.body.classList.add("dark-mode");
+}

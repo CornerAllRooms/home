@@ -1,5 +1,50 @@
 // Service Worker for CornerRoom PWA - Complete Subdirectory Solution
 // Add this to your activate event in sw.js
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  
+  // Handle manifest requests
+  if (url.pathname.endsWith('manifest.json')) {
+    event.respondWith(
+      (async () => {
+        // Try to get the current manifest from the window
+        if (window.currentManifest) {
+          return new Response(JSON.stringify(window.currentManifest), {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+        }
+        
+        // Fallback to network
+        try {
+          const networkResponse = await fetch(event.request);
+          return networkResponse;
+        } catch {
+          // Final fallback to default manifest
+          return new Response(JSON.stringify({
+            name: "CornerRoom",
+            short_name: "CAR",
+            start_url: "/",
+            display: "standalone",
+            background_color: "#000000",
+            theme_color: "#000000",
+            icons: [{
+              src: "/original.png",
+              sizes: "192x192 512x512",
+              type: "image/png",
+              purpose: "any maskable"
+            }]
+          }), {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+        }
+      })()
+    );
+    return;
+  }
 caches.keys().then(cacheNames => {
   return Promise.all(
     cacheNames.map(cache => caches.delete(cache))
@@ -162,4 +207,5 @@ self.addEventListener('install', (e) => {
       })()
     );
   }
+});
 });
