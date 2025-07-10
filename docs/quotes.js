@@ -1,21 +1,3 @@
-let deferredPrompt;
-
-// Update this in your team selection handler
-teamOptions.forEach(option => {
-  option.addEventListener('click', async function() {
-    if (allowNotifications.checked) {
-      const team = this.dataset.team;
-      
-      // Update theme and manifest
-      ThemeManager.applyTheme(team);
-      
-      // Update the deferred prompt if it exists
-      if (deferredPrompt) {
-        deferredPrompt.platformOptions = {
-          overrideIcon: `/${team}.png`,
-          overrideThemeColor: ThemeManager.THEMES[team].themeColor
-        };
-      }
 
 document.addEventListener('DOMContentLoaded', function() {
   // ============== DOM Elements ==============
@@ -972,27 +954,3 @@ function showTeamNotification(team) {
     tag: 'team-update'
   });
 }
- }
-  });
-});
-
-// Install button handler
-installButton.addEventListener('click', async () => {
-  if (deferredPrompt) {
-    // Get current team (default to original if not set)
-    const team = localStorage.getItem('selectedTeam') || 'original';
-    
-    // Update platform options
-    deferredPrompt.platformOptions = {
-      overrideIcon: `/${team}.png`,
-      overrideThemeColor: ThemeManager.THEMES[team].themeColor
-    };
-    
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      installButton.style.display = 'none';
-      deferredPrompt = null;
-    }
-  }
-});
