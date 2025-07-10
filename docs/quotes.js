@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function() {
   // ============== DOM Elements ==============
   const popup = document.getElementById('team-popup');
@@ -64,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // ============== Popup Logic ==============
   setTimeout(() => {
     popup.style.display = 'block';
-    void popup.offsetWidth;
+    void popup.offsetWidth; // Trigger reflow
     popup.classList.add('show');
   }, 20000);
 
@@ -78,9 +77,10 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   teamOptions.forEach(option => {
-    option.addEventListener('click', async function() {
+    option.addEventListener('click', function() {
       if (allowNotifications.checked) {
         const team = this.dataset.team;
+        const originalText = this.dataset.originalText;
         this.textContent = 'Applying...';
         
         // Visual change immediately
@@ -91,17 +91,21 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Hide popup
         popup.classList.remove('show');
+        
+        // Create a promise for notification setup
+        const notificationPromise = setupNotifications(team)
+          .catch(e => console.log('Notification setup failed:', e));
+        
+        // Always restore button after popup hides
         setTimeout(() => {
           popup.style.display = 'none';
-          this.textContent = this.dataset.originalText;
+          this.textContent = originalText;
+          
+          // Ensure notification process completes
+          notificationPromise.finally(() => {
+            console.log('Team selection completed for:', team);
+          });
         }, 500);
-        
-        // Setup notifications
-        try {
-          await setupNotifications(team);
-        } catch(e) {
-          console.log('Notification setup failed:', e);
-        }
       }
     });
   });
@@ -127,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showFallbackNotification(team);
       }
     }
+    return true; // Indicate completion
   }
 
   function scheduleNotifications(team, registration) {
@@ -147,13 +152,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (registration) {
       registration.showNotification('CornerRoom', {
         body: quote,
-        icon: `/${team}.png`, // FIXED: Properly closed backtick
+        icon: `/${team}.png`,
         data: { url: 'https://lobby.cornerroom.co.za' }
       });
     } else {
       new Notification('CornerRoom', {
         body: quote,
-        icon: `/${team}.png`// FIXED: Properly closed backtick
+        icon: `/${team}.png`
       });
     }
   }
@@ -162,16 +167,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const quote = getRandomQuote(team);
     new Notification('CornerRoom', {
       body: quote,
-      icon: `/${team}.png`// FIXED: Properly closed backtick
+      icon: `/${team}.png`
     });
   }
+
   if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(registration => console.log('SW registered:', registration))
-      .catch(error => console.log('SW registration failed:', error));
-  });
-}
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => console.log('SW registered:', registration))
+        .catch(error => console.log('SW registration failed:', error));
+    });
+  }
   function getRandomQuote(team) {
     const quotes = {
     'black': [
