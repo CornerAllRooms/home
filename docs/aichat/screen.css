@@ -1,5 +1,4 @@
-    
-        #add-to-home-screen-banner {
+ #add-to-home-screen-banner {
             display: none;
             position: fixed;
             bottom: 0;
@@ -19,5 +18,28 @@
             margin-left: 10px;
             cursor: pointer;
         }
-    
-   
+        .bouncing-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 20px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: linear-gradient(var(--color-start), var(--color-end));
+  animation: bounce 1s infinite ease-in-out;
+  animation-delay: var(--delay);
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}  

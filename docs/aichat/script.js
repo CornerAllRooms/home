@@ -1,53 +1,22 @@
+const PROXY_URL = 'https://cornerroom.co.za/api/chat'; // Replace with your backend URL
+
+// DOM Elements
 const typingForm = document.querySelector(".typing-form");
 const chatContainer = document.querySelector(".chat-list");
 const suggestions = document.querySelectorAll(".suggestion");
 const toggleThemeButton = document.querySelector("#theme-toggle-button");
 const deleteChatButton = document.querySelector("#delete-chat-button");
 const sendMessageButton = document.querySelector("#send-message-button");
-const installBanner = document.getElementById('add-to-home-screen-banner');
-const installButton = document.getElementById('add-to-home-screen-button');
 
 let userMessage = null;
 let isResponseGenerating = false;
-let deferredPrompt = null;
+let userId = localStorage.getItem('user-id') || generateUserId();
 
-// Secure API configuration (replace with your actual API_KEY)
-const GROQ_API = {
-  url: "https://api.groq.com/openai/v1/chat/completions",
-  apiKey: "GROQ_API_KEY", // REPLACE THIS WITH YOUR ACTUAL KEY
-  model: "meta-llama/llama-4-scout-17b-16e-instruct",
-
-  async getResponse(prompt) {
-    try {
-      const response = await fetch(this.url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${this.apiKey}`
-        },
-        body: JSON.stringify({
-          model: this.model,
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.7
-        })
-      });
-
-      if (response.status === 429) {
-        return "⚠️ Too many requests. Please wait a moment...";
-      }
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.choices[0]?.message?.content || "No response generated.";
-    } catch (error) {
-      console.error("API Error:", error);
-      return "🔴 Connection error. Please try again later.";
-    }
-  }
-};
+function generateUserId() {
+  const id = 'user-' + Math.random().toString(36).substr(2, 9);
+  localStorage.setItem('user-id', id);
+  return id;
+}
 
 // Improved typing effect
 const showTypingEffect = (text, textElement, incomingMessageDiv) => {
@@ -66,8 +35,6 @@ const showTypingEffect = (text, textElement, incomingMessageDiv) => {
   }, 20);
 };
 
-
-// Chat functions
 const handleOutgoingChat = () => {
   userMessage = typingForm.querySelector(".typing-input").value.trim();
   if (!userMessage || isResponseGenerating) return;
@@ -92,10 +59,10 @@ const showLoadingAnimation = () => {
     <div class="message-content">
       <img class="avatar" src="gemini.svg" alt="AI avatar">
       <p class="text"></p>
-      <div class="loading-indicator">
-        <div class="loading-bar"></div>
-        <div class="loading-bar"></div>
-        <div class="loading-bar"></div>
+      <div class="bouncing-dots">
+        <div class="dot" style="--delay: 0s; --color-start: #2563eb; --color-end: #0ea5e9"></div>
+        <div class="dot" style="--delay: 0.2s; --color-start: #2563eb; --color-end: #0ea5e9"></div>
+        <div class="dot" style="--delay: 0.4s; --color-start: #2563eb; --color-end: #0ea5e9"></div>
       </div>
     </div>
     <span class="icon material-symbols-rounded hide">content_copy</span>`;
@@ -105,22 +72,43 @@ const showLoadingAnimation = () => {
   chatContainer.scrollTo(0, chatContainer.scrollHeight);
   generateAPIResponse(incomingMessageDiv);
 };
+
 const generateAPIResponse = async (incomingMessageDiv) => {
   const textElement = incomingMessageDiv.querySelector(".text");
-  const loadingIndicator = incomingMessageDiv.querySelector(".loading-indicator");
   
   try {
-    const apiResponse = await GROQ_API.getResponse(userMessage);
-    // Remove loading indicator before showing text
-    if (loadingIndicator) loadingIndicator.remove();
+    const response = await fetch(PROXY_URL, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "X-User-ID": userId
+      },
+      body: JSON.stringify({
+        messages: [{ role: "user", content: userMessage }]
+      }),
+    });
+
+    if (response.status === 429) {
+      throw new Error("You've used your daily limit of 50 messages. Please try again tomorrow.");
+    }
+    
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    const apiResponse = data.choices[0]?.message?.content || "No response generated.";
+    
+    incomingMessageDiv.querySelector(".bouncing-dots")?.remove();
     showTypingEffect(apiResponse, textElement, incomingMessageDiv);
   } catch (error) {
-    if (loadingIndicator) loadingIndicator.remove();
-    textElement.textContent = `⚠️ Error: ${error.message}`;
+    incomingMessageDiv.querySelector(".bouncing-dots")?.remove();
+    textElement.textContent = `⚠️ ${error.message}`;
     isResponseGenerating = false;
     incomingMessageDiv.querySelector(".icon")?.classList.remove("hide");
   }
 };
+
 // Utility functions
 const createMessageElement = (content, ...classes) => {
   const div = document.createElement("div");
@@ -141,6 +129,32 @@ const copyMessage = (copyButton) => {
   setTimeout(() => copyButton.textContent = "content_copy", 1000);
 };
 
+// Quick connection test
+async function testConnection() {
+  const testDiv = createMessageElement('<div class="message-content"><p class="text"></p></div>', "incoming");
+  chatContainer.appendChild(testDiv);
+  
+  try {
+    const response = await fetch(PROXY_URL, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "X-User-ID": userId
+      },
+      body: JSON.stringify({
+        messages: [{ role: "user", content: "Hello" }]
+      }),
+    });
+    
+    const data = await response.json();
+    testDiv.querySelector(".text").textContent = response.ok 
+      ? "✅ Connected to Chatting Corner" 
+      : "❌ Connection failed";
+  } catch (error) {
+    testDiv.querySelector(".text").textContent = `❌ Connection error: ${error.message}`;
+  }
+}
+
 // Initialization
 const initApp = () => {
   // Load saved chats
@@ -150,52 +164,51 @@ const initApp = () => {
   }
   chatContainer.scrollTo(0, chatContainer.scrollHeight);
   
-  // Set up event listeners
-  typingForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    handleOutgoingChat();
-  });
+// Load theme preference
+const isDarkMode = localStorage.getItem("darkMode") === "true";
+if (isDarkMode) {
+  document.body.classList.add("dark-mode");
+  toggleThemeButton.textContent = "dark_mode";
+} else {
+  document.body.classList.remove("dark-mode");
+  toggleThemeButton.textContent = "light_mode";
+}
+
+// Theme toggle handler
+toggleThemeButton.addEventListener("click", () => {
+  const isNowDarkMode = !document.body.classList.contains("dark-mode");
   
-  deleteChatButton.addEventListener("click", () => {
-    if (confirm("Delete all chats?")) {
-      localStorage.removeItem("saved-chats");
-      chatContainer.innerHTML = '';
-      document.body.classList.remove("hide-header");
-    }
-  });
+  // Toggle dark mode class
+  document.body.classList.toggle("dark-mode", isNowDarkMode);
   
-  chatContainer.addEventListener("click", (e) => {
-    if (e.target.classList.contains("icon")) {
-      copyMessage(e.target);
-    }
-  });
+  // Update icon
+  toggleThemeButton.textContent = isNowDarkMode ? "dark_mode" : "light_mode";
   
+  // Save preference
+  localStorage.setItem("darkMode", isNowDarkMode);
+});
+
+// Set up other event listeners
+typingForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  handleOutgoingChat();
+});
+
+deleteChatButton.addEventListener("click", () => {
+  if (confirm("Delete all chats?")) {
+    localStorage.removeItem("saved-chats");
+    chatContainer.innerHTML = '';
+    document.body.classList.remove("hide-header");
+  }
+});
+
+chatContainer.addEventListener("click", (e) => {
+  if (e.target.classList.contains("icon")) {
+    copyMessage(e.target);
+  }
+});
   // Test API connection on startup
   testConnection();
 };
 
-// Quick connection test
-async function testConnection() {
-  const testDiv = createMessageElement('<div class="message-content"><p class="text"></p></div>', "incoming");
-  chatContainer.appendChild(testDiv);
-  
-  try {
-    const testResponse = await GROQ_API.getResponse("Hello");
-    testDiv.querySelector(".text").textContent = testResponse.includes("🔴") 
-      ? "❌ Connection failed" 
-      : "✅ Connected to Chatting Corner";
-  } catch (error) {
-    testDiv.querySelector(".text").textContent = `❌ Connection error: ${error.message}`;
-  }
-}
 document.addEventListener("DOMContentLoaded", initApp);
-// Add this to your initApp() function
-toggleThemeButton.addEventListener("click", () => {
-  document.body.classList.toggle("dark-mode");
-  localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
-});
-
-// Add this at the start of initApp() to load saved preference
-if (localStorage.getItem("darkMode") === "true") {
-  document.body.classList.add("dark-mode");
-}

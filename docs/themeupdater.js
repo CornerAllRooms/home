@@ -1,15 +1,3 @@
-function updatePWAInstall(team) {
-  // Only works during beforeinstallprompt
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.platformOptions = {
-      overrideIcon: `/${team}.png`, // Forces team-specific icon
-      overrideThemeColor: TEAM_COLORS[team].themeColor
-    };
-  });
-}
-
-// Call when team changes
-onTeamSelected('black'); // Example
 class ThemeManager {
   static THEMES = {
     'black': {
@@ -38,9 +26,50 @@ class ThemeManager {
     }
   };
 
+  static deferredPrompt = null;
+
   static init() {
+    this.setupInstallPrompt();
     this.applyTheme(localStorage.getItem('selectedTeam') || 'original');
     this.watchSystemTheme();
+  }
+
+  static setupInstallPrompt() {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      this.deferredPrompt = e;
+      
+      // Show your install button (you'll need to implement this)
+      const installButton = document.getElementById('install-button');
+      if (installButton) {
+        installButton.style.display = 'block';
+        installButton.addEventListener('click', () => this.triggerInstall());
+      }
+    });
+  }
+
+  static triggerInstall() {
+    if (this.deferredPrompt) {
+      const team = localStorage.getItem('selectedTeam') || 'original';
+      const theme = this.THEMES[team] || this.THEMES.original;
+      
+      // Update install options with current theme
+      this.deferredPrompt.platformOptions = {
+        overrideIcon: theme.icon,
+        overrideThemeColor: theme.themeColor
+      };
+      
+      this.deferredPrompt.prompt();
+      
+      this.deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+        } else {
+          console.log('User dismissed the install prompt');
+        }
+        this.deferredPrompt = null;
+      });
+    }
   }
 
   static applyTheme(team) {
@@ -59,6 +88,9 @@ class ThemeManager {
     
     // Save preference
     localStorage.setItem('selectedTeam', team);
+    
+    // Update service worker with new theme
+    this.updateServiceWorker(team);
     
     // Dispatch event for other components
     document.dispatchEvent(new CustomEvent('theme-changed', { detail: theme }));
@@ -105,9 +137,19 @@ class ThemeManager {
     document.head.appendChild(link);
   }
 
+  static updateServiceWorker(team) {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'UPDATE_THEME',
+        team: team,
+        theme: this.THEMES[team]
+      });
+    }
+  }
+
   static watchSystemTheme() {
     const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    darkModeQuery.addListener(() => this.handleSystemThemeChange());
+    darkModeQuery.addEventListener('change', () => this.handleSystemThemeChange());
     this.handleSystemThemeChange();
   }
 
@@ -123,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.manifestBase = {
     name: "CornerRoom",
     short_name: "CAR",
-    start_url: "https://cornerroom.co.za",
+    start_url: "/",
     display: "standalone",
     background_color: "#000000",
     orientation: "portrait-primary"
@@ -131,3 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
   ThemeManager.init();
 });
+
+// Example team selection handler
+function onTeamSelected(team) {
+  ThemeManager.applyTheme(team);
+}

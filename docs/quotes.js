@@ -23,10 +23,23 @@ document.addEventListener('DOMContentLoaded', function() {
     e.preventDefault();
     deferredPrompt = e;
     installButton.style.display = 'block';
+    
+    // Update install options with current theme
+    const team = localStorage.getItem('selectedTeam') || 'original';
+    e.platformOptions = {
+      overrideIcon: `/${team}.png`,
+      overrideThemeColor: ThemeManager.THEMES[team].themeColor
+    };
   });
 
   installButton.addEventListener('click', async () => {
     if (deferredPrompt) {
+      const team = localStorage.getItem('selectedTeam') || 'original';
+      deferredPrompt.platformOptions = {
+        overrideIcon: `/${team}.png`,
+        overrideThemeColor: ThemeManager.THEMES[team].themeColor
+      };
+      
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
@@ -77,35 +90,45 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   teamOptions.forEach(option => {
-    option.addEventListener('click', function() {
+    option.addEventListener('click', async function() {
       if (allowNotifications.checked) {
         const team = this.dataset.team;
         const originalText = this.dataset.originalText;
         this.textContent = 'Applying...';
         
-        // Visual change immediately
-        logo.href = `/${team}.png`;
-        
-        // Save if possible
-        if (storageAvailable) localStorage.setItem('selectedTeam', team);
-        
-        // Hide popup
-        popup.classList.remove('show');
-        
-        // Create a promise for notification setup
-        const notificationPromise = setupNotifications(team)
-          .catch(e => console.log('Notification setup failed:', e));
-        
-        // Always restore button after popup hides
-        setTimeout(() => {
-          popup.style.display = 'none';
-          this.textContent = originalText;
+        try {
+          // Apply theme changes first
+          ThemeManager.applyTheme(team);
           
-          // Ensure notification process completes
-          notificationPromise.finally(() => {
+          // Visual change immediately
+          logo.href = `/${team}.png`;
+          
+          // Save if possible
+          if (storageAvailable) localStorage.setItem('selectedTeam', team);
+          
+          // Hide popup
+          popup.classList.remove('show');
+          
+          // Setup notifications
+          await setupNotifications(team);
+          
+          // Update install prompt with new theme
+          if (deferredPrompt) {
+            deferredPrompt.platformOptions = {
+              overrideIcon: `/${team}.png`,
+              overrideThemeColor: ThemeManager.THEMES[team].themeColor
+            };
+          }
+        } catch (error) {
+          console.error('Error applying theme:', error);
+        } finally {
+          // Always restore button after popup hides
+          setTimeout(() => {
+            popup.style.display = 'none';
+            this.textContent = originalText;
             console.log('Team selection completed for:', team);
-          });
-        }, 500);
+          }, 500);
+        }
       }
     });
   });
@@ -114,24 +137,30 @@ document.addEventListener('DOMContentLoaded', function() {
   async function setupNotifications(team) {
     if (!('Notification' in window)) return;
     
-    let registration;
-    if ('serviceWorker' in navigator) {
-      try {
-        registration = await navigator.serviceWorker.register('/sw.js');
-      } catch(e) {
-        console.log('ServiceWorker failed, using fallback');
+    try {
+      let registration;
+      if ('serviceWorker' in navigator) {
+        try {
+          registration = await navigator.serviceWorker.register('/sw.js');
+          console.log('ServiceWorker registration successful');
+        } catch(e) {
+          console.log('ServiceWorker registration failed:', e);
+        }
       }
-    }
-    
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      if (registration) {
-        scheduleNotifications(team, registration);
-      } else {
-        showFallbackNotification(team);
+      
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        if (registration) {
+          scheduleNotifications(team, registration);
+        } else {
+          showFallbackNotification(team);
+        }
       }
+      return true;
+    } catch (error) {
+      console.error('Notification setup error:', error);
+      return false;
     }
-    return true; // Indicate completion
   }
 
   function scheduleNotifications(team, registration) {
@@ -148,35 +177,54 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function sendNotification(team, registration) {
-    const quote = getRandomQuote(team);
-    if (registration) {
-      registration.showNotification('CornerRoom', {
-        body: quote,
-        icon: `/${team}.png`,
-        data: { url: 'https://lobby.cornerroom.co.za' }
-      });
-    } else {
-      new Notification('CornerRoom', {
-        body: quote,
-        icon: `/${team}.png`
-    });
+    try {
+      const quote = getRandomQuote(team);
+      if (registration) {
+        registration.showNotification('CornerRoom', {
+          body: quote,
+          icon: `/${team}.png`,
+          data: { url: 'https://lobby.cornerroom.co.za' }
+        });
+      } else {
+        new Notification('CornerRoom', {
+          body: quote,
+          icon: `/${team}.png`
+        });
+      }
+    } catch (error) {
+      console.error('Error sending notification:', error);
+    }
   }
 
   function showFallbackNotification(team) {
-    const quote = getRandomQuote(team);
-    new Notification('CornerRoom', {
-      body: quote,
-      icon: `/${team}.png`
-    });
+    try {
+      const quote = getRandomQuote(team);
+      new Notification('CornerRoom', {
+        body: quote,
+        icon: `/${team}.png`
+      });
+    } catch (error) {
+      console.error('Error showing fallback notification:', error);
+    }
   }
 
+  // Initialize service worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
-        .then(registration => console.log('SW registered:', registration))
+        .then(registration => {
+          console.log('SW registered:', registration);
+          // Listen for messages from service worker
+          navigator.serviceWorker.addEventListener('message', event => {
+            if (event.data.type === 'SW_READY') {
+              console.log('Service Worker ready');
+            }
+          });
+        })
         .catch(error => console.log('SW registration failed:', error));
     });
   }
+
   function getRandomQuote(team) {
     const quotes = {
     'black': [
@@ -914,18 +962,120 @@ document.addEventListener('DOMContentLoaded', function() {
     ]
   };
 
-  const randomIndex = Math.floor(Math.random() * quotes[team].length);
-      return quotes[team][randomIndex];
+    if (!quotes[team]) team = 'original';
+    const teamQuotes = quotes[team] || quotes['original'];
+    const randomIndex = Math.floor(Math.random() * teamQuotes.length);
+    return teamQuotes[randomIndex];
+  }
+});
+
+// Theme Manager Class
+class ThemeManager {
+  static THEMES = {
+    'black': {
+      themeColor: '#FF0000',
+      secondaryColor: '#000000',
+      icon: '/black.png',
+      accent: '#FF4444'
+    },
+    'gold': {
+      themeColor: '#FFC0CB',
+      secondaryColor: '#FFD700',
+      icon: '/gold.png',
+      accent: '#FFB6C1'
+    },
+    'green-gold': {
+      themeColor: '#008000',
+      secondaryColor: '#FFD700',
+      icon: '/green-gold.png',
+      accent: '#90EE90'
+    },
+    'original': {
+      themeColor: '#FFA500',
+      secondaryColor: '#A89858',
+      icon: '/original.png',
+      accent: '#FFD580'
     }
-  
-    function showNotification(team, quote) {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.ready.then(registration => {
-          registration.showNotification('CornerRoom', {
-            body: quote,
-            icon: `/${team}.png`,
-            data: { url: 'https://lobby.cornerroom.co.za' }
-          });
-      }
+  };
+
+  static applyTheme(team) {
+    const theme = this.THEMES[team] || this.THEMES.original;
+    
+    // Update Favicon
+    this.updateFavicon(`${theme.icon}?v=${Date.now()}`);
+    
+    // Update PWA Manifest
+    this.updateManifest(team, theme.themeColor);
+    
+    // Update CSS Variables
+    document.documentElement.style.setProperty('--primary', theme.themeColor);
+    document.documentElement.style.setProperty('--secondary', theme.secondaryColor);
+    document.documentElement.style.setProperty('--accent', theme.accent);
+    
+    // Notify service worker of theme change
+    this.notifyServiceWorker(team);
+  }
+
+  static updateFavicon(iconPath) {
+    const links = [
+      { rel: 'icon', sizes: '16x16' },
+      { rel: 'icon', sizes: '32x32' },
+      { rel: 'apple-touch-icon', sizes: '180x180' },
+      { rel: 'mask-icon', color: '#000000' }
+    ];
+
+    links.forEach(link => {
+      const el = document.querySelector(`link[rel="${link.rel}"][sizes="${link.sizes}"]`) || 
+                 document.createElement('link');
+      el.rel = link.rel;
+      el.href = iconPath;
+      if (link.sizes) el.sizes = link.sizes;
+      if (link.color) el.color = link.color;
+      document.head.appendChild(el);
     });
   }
+
+  static updateManifest(team, themeColor) {
+    const manifest = {
+      name: "CornerRoom",
+      short_name: "CAR",
+      start_url: "/",
+      display: "standalone",
+      background_color: "#000000",
+      orientation: "portrait-primary",
+      theme_color: themeColor,
+      icons: [{
+        src: this.THEMES[team].icon,
+        sizes: "192x192 512x512",
+        type: "image/png",
+        purpose: "any maskable"
+      }]
+    };
+
+    const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.querySelector('link[rel="manifest"]') || 
+                 document.createElement('link');
+    link.rel = 'manifest';
+    link.href = url;
+    document.head.appendChild(link);
+  }
+
+  static notifyServiceWorker(team) {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'THEME_CHANGE',
+        team: team,
+        theme: this.THEMES[team]
+      });
+    }
+  }
+}
+
+// Initialize ThemeManager when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  // Apply saved theme or default
+  const savedTeam = localStorage.getItem('selectedTeam') || 'original';
+  ThemeManager.applyTheme(savedTeam);
+});

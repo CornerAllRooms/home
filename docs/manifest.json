@@ -1,25 +1,24 @@
 {
   "name": "CornerRoom",
   "short_name": "C.A.R",
-  "start_url": "https://cornerroom.co.za", // Default team
+  "start_url": "https://cornerroom.co.za",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#000000", // Will be dynamically updated
+  "theme_color": "#000000",
   "icons": [
-    // Default icon (required)
     {
       "src": "/original.png",
       "sizes": "192x192 512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
-    // Team-specific icons (optional but recommended)
+    
     {
       "src": "/black.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any",
-      "team": "black" // Custom property
+      "team": "black" 
     },
     {
       "src": "/gold.png",
@@ -37,4 +36,3 @@
     }
   ]
 }
-"purpose": "any maskable"

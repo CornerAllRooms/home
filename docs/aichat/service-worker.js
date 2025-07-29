@@ -9,7 +9,8 @@ const ASSETS_TO_CACHE = [
    '/aichat/trash.png',
   '/aichat/logo.png',
   '/aichat/gemini.svg',
-  '/aichat/manifest.json'
+  '/aichat/manifest.json',
+  '/aichat/server.js',
 ];
 self.addEventListener('fetch', (event) => {
   if (event.request.url.startsWith('http:')) {
