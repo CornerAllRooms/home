@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     deferredPrompt = e;
     installButton.style.display = 'block';
     
-    // Update install options with current theme
+    // Update with current theme
     const team = localStorage.getItem('selectedTeam') || 'original';
     e.platformOptions = {
       overrideIcon: `/${team}.png`,
@@ -97,37 +97,26 @@ document.addEventListener('DOMContentLoaded', function() {
         this.textContent = 'Applying...';
         
         try {
-          // Apply theme changes first
+          // Apply theme changes
           ThemeManager.applyTheme(team);
           
-          // Visual change immediately
-          logo.href = `/${team}.png`;
+          // Update logo immediately
+          logo.href = `/${team}.png?t=${Date.now()}`;
           
-          // Save if possible
-          if (storageAvailable) localStorage.setItem('selectedTeam', team);
-          
-          // Hide popup
-          popup.classList.remove('show');
-          
-          // Setup notifications
-          await setupNotifications(team);
-          
-          // Update install prompt with new theme
-          if (deferredPrompt) {
-            deferredPrompt.platformOptions = {
-              overrideIcon: `/${team}.png`,
-              overrideThemeColor: ThemeManager.THEMES[team].themeColor
-            };
+          // Setup notifications (if enabled)
+          if (allowNotifications.checked) {
+            await setupNotifications(team);
           }
+          
+          // Force UI update
+          await new Promise(resolve => setTimeout(resolve, 100));
         } catch (error) {
           console.error('Error applying theme:', error);
         } finally {
-          // Always restore button after popup hides
-          setTimeout(() => {
-            popup.style.display = 'none';
-            this.textContent = originalText;
-            console.log('Team selection completed for:', team);
-          }, 500);
+          // Always restore button state
+          this.textContent = originalText;
+          popup.classList.remove('show');
+          setTimeout(() => popup.style.display = 'none', 500);
         }
       }
     });

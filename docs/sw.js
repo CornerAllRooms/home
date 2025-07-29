@@ -1,32 +1,21 @@
-// Service Worker for CornerRoom PWA - Complete Subdirectory Solution
-const CACHE_NAME = 'cornerroom-cache-v7';
-const ICONS_TO_CACHE = [
-  '/black.png',
-  '/gold.png',
-  '/green-gold.png',
-  '/original.png'
-];
+// Service Worker for CornerRoom PWA
+const CACHE_NAME = 'cornerroom-cache-v9';
 const ASSETS_TO_CACHE = [
+  '/',
   '/index.html',
   '/styles.css',
+  '/theme-manager.js',
   '/quotes.js',
-  '/quotes.css',
   '/manifest.json',
   '/black.png',
   '/gold.png',
   '/green-gold.png',
   '/original.png',
-  '/load.gif',
-  '/load.css',
-  '/menu.css',
-  '/accept.css',
-  '/screen.js',
-  '/auth.js',
-  '/accept.js'
+  '/load.gif'
 ];
 
-// List of all subdirectories to bypass
-const SUBDIRECTORIES = [
+// Subdirectories to bypass
+const BYPASS_PATHS = [
   '/aitrainer/',
   '/tcs/',
   '/aichat/',
@@ -36,7 +25,7 @@ const SUBDIRECTORIES = [
   '/cookies/'
 ];
 
-// Install event - cache all essential assets
+// Install - Cache core assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -45,7 +34,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate event - clean up old caches
+// Activate - Clean old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -54,158 +43,164 @@ self.addEventListener('activate', (event) => {
           if (cache !== CACHE_NAME) return caches.delete(cache);
         })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => {
+      console.log('Service Worker activated');
+      return self.clients.claim();
+    })
   );
 });
 
-// Fetch event handler
+// Fetch - Network first with cache fallback
 self.addEventListener('fetch', (event) => {
-  const requestUrl = new URL(event.request.url);
-  const pathname = requestUrl.pathname;
+  const request = event.request;
+  const url = new URL(request.url);
 
-  // Bypass SW completely for all subdirectories
-  if (SUBDIRECTORIES.some(subdir => pathname.startsWith(subdir))) {
-    return fetch(event.request);
+  // Bypass for specific paths
+  if (BYPASS_PATHS.some(path => url.pathname.startsWith(path))) {
+    return fetch(request);
   }
 
-  // Bypass for non-GET requests and non-whitelisted extensions
-  if (event.request.method !== 'GET') return;
-  if (/\.(json|xml|php|cgi|py)$/i.test(pathname)) return;
+  // Bypass for non-GET requests
+  if (request.method !== 'GET') return;
 
-  // Special handling for manifest.json
-  if (pathname.endsWith('manifest.json')) {
+  // Special handling for manifest
+  if (url.pathname.endsWith('manifest.json')) {
     event.respondWith(
-      handleManifestRequest(event.request)
+      handleManifestRequest(request)
     );
     return;
   }
 
-  // Special handling for root HTML
-  if (event.request.mode === 'navigate' && pathname === '/index.html') {
+  // For theme assets, check cache first
+  if (isThemeAsset(url.pathname)) {
     event.respondWith(
-      fetch(event.request)
-        .then(networkResponse => {
-          // Only cache successful root index.html
-          if (networkResponse.ok) {
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME)
-              .then(cache => cache.put(event.request, responseToCache));
-          }
-          return networkResponse;
-        })
-        .catch(() => caches.match('/index.html'))
+      caches.match(request).then(cached => cached || fetch(request))
     );
     return;
   }
 
-  // Cache-first for all other assets
+  // Default: network first with cache fallback
   event.respondWith(
-    caches.match(event.request)
-      .then(cachedResponse => {
-        // Return cached response if available
-        if (cachedResponse) return cachedResponse;
-        
-        // Otherwise fetch from network
-        return fetch(event.request).then(response => {
-          // Cache new responses (except HTML)
-          if (response.ok && !response.headers.get('content-type').includes('text/html')) {
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME)
-              .then(cache => cache.put(event.request, responseToCache));
-          }
-          return response;
-        });
+    fetch(request)
+      .then(networkResponse => {
+        // Cache successful responses (except HTML)
+        if (networkResponse.ok && !networkResponse.headers.get('content-type')?.includes('text/html')) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME)
+            .then(cache => cache.put(request, responseToCache));
+        }
+        return networkResponse;
       })
+      .catch(() => caches.match(request))
   );
 });
+
+// Handle manifest requests with theme support
+async function handleManifestRequest(request) {
+  try {
+    // Try network first
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const manifest = await networkResponse.json();
+      return customizeManifest(manifest);
+    }
+  } catch (e) {
+    console.log('Network manifest fetch failed, trying cache');
+  }
+
+  // Fallback to cache
+  const cached = await caches.match(request);
+  if (cached) {
+    const manifest = await cached.json();
+    return customizeManifest(manifest);
+  }
+
+  // Final fallback
+  return fetch(request);
+}
+
+// Customize manifest based on theme
+async function customizeManifest(manifest) {
+  // Get team preference from clients
+  const team = await getTeamPreference();
+  
+  // Update theme color
+  manifest.theme_color = getThemeColor(team);
+  
+  return new Response(JSON.stringify(manifest), {
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+// Get team preference from clients
+async function getTeamPreference() {
+  const clients = await self.clients.matchAll();
+  for (const client of clients) {
+    try {
+      const response = await client.postMessage({
+        type: 'GET_TEAM_REQUEST'
+      });
+      if (response?.team) return response.team;
+    } catch (e) {
+      console.log('Could not get team from client:', e);
+    }
+  }
+  return 'original'; // Default
+}
+
+function getThemeColor(team) {
+  const colors = {
+    'black': '#FF0000',
+    'gold': '#FFC0CB',
+    'green-gold': '#008000',
+    'original': '#FFA500'
+  };
+  return colors[team] || colors.original;
+}
+
+function isThemeAsset(path) {
+  return [
+    '/black.png',
+    '/gold.png',
+    '/green-gold.png',
+    '/original.png',
+    '/manifest.json'
+  ].some(asset => path.includes(asset));
+}
+
+// Handle messages from clients
+self.addEventListener('message', (event) => {
+  if (event.data.type === 'THEME_UPDATE') {
+    handleThemeUpdate(event.data);
+  }
+});
+
+// Update cache when theme changes
+async function handleThemeUpdate(data) {
+  const cache = await caches.open(CACHE_NAME);
+  
+  // Update manifest in cache
+  const manifestResponse = await cache.match('/manifest.json');
+  if (manifestResponse) {
+    const manifest = await manifestResponse.json();
+    manifest.theme_color = data.themeColor;
+    await cache.put('/manifest.json', new Response(JSON.stringify(manifest)));
+  }
+  
+  // Notify all clients
+  const clients = await self.clients.matchAll();
+  clients.forEach(client => {
+    client.postMessage({
+      type: 'THEME_UPDATED',
+      team: data.team
+    });
+  });
+}
 
 // Notification click handler
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil(
-    clients.openWindow(event.notification.data?.url || '/index.html')
+    clients.openWindow(event.notification.data?.url || '/')
   );
-});
-
-// Handle manifest requests with team-specific icons
-async function handleManifestRequest(request) {
-  try {
-    // First try to get from cache
-    const cached = await caches.match(request);
-    if (cached) return cached;
-    
-    // Otherwise fetch fresh and modify
-    const response = await fetch(request);
-    const manifest = await response.json();
-    
-    // Get user's selected team from all clients
-    const team = await getTeamPreference();
-    
-    // Update manifest with team-specific icon
-    manifest.icons = manifest.icons.map(icon => {
-      // Use team-specific icon if available, otherwise fallback to original
-      const iconForTeam = icon.team === team ? icon.src : '/original.png';
-      return {
-        ...icon,
-        src: iconForTeam
-      };
-    });
-    
-    // Update theme color if needed
-    if (team === 'black') manifest.theme_color = '#FF0000';
-    else if (team === 'gold') manifest.theme_color = '#FFC0CB';
-    else if (team === 'green-gold') manifest.theme_color = '#008000';
-    else manifest.theme_color = '#FFA500'; // original
-    
-    return new Response(JSON.stringify(manifest), {
-      headers: { 'Content-Type': 'application/json' }
-    });
-  } catch (error) {
-    console.error('Error handling manifest:', error);
-    return fetch(request);
-  }
-}
-
-// Get team preference from clients
-async function getTeamPreference() {
-  // Try to get from all clients
-  const clients = await self.clients.matchAll();
-  for (const client of clients) {
-    try {
-      // Post message to client to get preference
-      const messageChannel = new MessageChannel();
-      const promise = new Promise((resolve) => {
-        messageChannel.port1.onmessage = (event) => {
-          resolve(event.data.team || 'original');
-        };
-      });
-      
-      client.postMessage({
-        type: 'GET_TEAM_PREFERENCE'
-      }, [messageChannel.port2]);
-      
-      const team = await promise;
-      if (team) return team;
-    } catch (e) {
-      console.error('Error getting team preference from client:', e);
-    }
-  }
-  
-  // Fallback to default
-  return 'original';
-}
-
-// Listen for messages from clients
-self.addEventListener('message', (event) => {
-  if (event.data.type === 'TEAM_UPDATE') {
-    // When team changes, we might want to update the cache
-    caches.open(CACHE_NAME).then(cache => {
-      // Re-cache the manifest with new team settings
-      return fetch('/manifest.json')
-        .then(response => handleManifestRequest(response))
-        .then(updatedManifest => {
-          return cache.put('/manifest.json', updatedManifest);
-        });
-    });
-  }
 });
