@@ -1,5 +1,5 @@
-// Service Worker for CornerRoom PWA
-const CACHE_NAME = 'cornerroom-cache-v9';
+// Service Worker for CornerRoom PWA - Version 2.0
+const CACHE_NAME = 'cornerroom-cache-v10';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -11,10 +11,11 @@ const ASSETS_TO_CACHE = [
   '/gold.png',
   '/green-gold.png',
   '/original.png',
-  '/load.gif'
+  '/load.gif',
+  '/fitness.mp4'
 ];
 
-// Subdirectories to bypass
+// Paths to bypass caching
 const BYPASS_PATHS = [
   '/aitrainer/',
   '/tcs/',
@@ -25,22 +26,31 @@ const BYPASS_PATHS = [
   '/cookies/'
 ];
 
-// Install - Cache core assets
+// Install event - Cache core assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(ASSETS_TO_CACHE))
-      .then(() => self.skipWaiting())
+      .then(cache => {
+        console.log('Opened cache');
+        return cache.addAll(ASSETS_TO_CACHE);
+      })
+      .then(() => {
+        console.log('All assets cached');
+        return self.skipWaiting();
+      })
   );
 });
 
-// Activate - Clean old caches
+// Activate event - Clean old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) return caches.delete(cache);
+          if (cache !== CACHE_NAME) {
+            console.log('Deleting old cache:', cache);
+            return caches.delete(cache);
+          }
         })
       );
     }).then(() => {
@@ -50,17 +60,17 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch - Network first with cache fallback
+// Fetch event handler
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
 
-  // Bypass for specific paths
+  // Bypass caching for specific paths
   if (BYPASS_PATHS.some(path => url.pathname.startsWith(path))) {
     return fetch(request);
   }
 
-  // Bypass for non-GET requests
+  // Bypass caching for non-GET requests
   if (request.method !== 'GET') return;
 
   // Special handling for manifest
@@ -71,20 +81,22 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For theme assets, check cache first
+  // Cache-first strategy for theme assets
   if (isThemeAsset(url.pathname)) {
     event.respondWith(
-      caches.match(request).then(cached => cached || fetch(request))
+      caches.match(request)
+        .then(cached => cached || fetch(request))
     );
     return;
   }
 
-  // Default: network first with cache fallback
+  // Network-first strategy for other requests
   event.respondWith(
     fetch(request)
       .then(networkResponse => {
         // Cache successful responses (except HTML)
-        if (networkResponse.ok && !networkResponse.headers.get('content-type')?.includes('text/html')) {
+        if (networkResponse.ok && 
+            !networkResponse.headers.get('content-type')?.includes('text/html')) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME)
             .then(cache => cache.put(request, responseToCache));
@@ -119,35 +131,50 @@ async function handleManifestRequest(request) {
   return fetch(request);
 }
 
-// Customize manifest based on theme
+// Customize manifest based on current theme
 async function customizeManifest(manifest) {
-  // Get team preference from clients
-  const team = await getTeamPreference();
+  // Get current team from clients
+  const team = await getCurrentTeam();
   
   // Update theme color
   manifest.theme_color = getThemeColor(team);
   
+  // Update icons if needed
+  if (team !== 'original') {
+    manifest.icons = manifest.icons.map(icon => {
+      if (icon.purpose === 'any') {
+        return {
+          ...icon,
+          src: `/${team}.png`
+        };
+      }
+      return icon;
+    });
+  }
+
   return new Response(JSON.stringify(manifest), {
     headers: { 'Content-Type': 'application/json' }
   });
 }
 
-// Get team preference from clients
-async function getTeamPreference() {
+// Get current team preference from clients
+async function getCurrentTeam() {
   const clients = await self.clients.matchAll();
   for (const client of clients) {
     try {
+      // Request team info from client
       const response = await client.postMessage({
-        type: 'GET_TEAM_REQUEST'
+        type: 'GET_CURRENT_TEAM'
       });
       if (response?.team) return response.team;
     } catch (e) {
       console.log('Could not get team from client:', e);
     }
   }
-  return 'original'; // Default
+  return 'original'; // Default team
 }
 
+// Get theme color for team
 function getThemeColor(team) {
   const colors = {
     'black': '#FF0000',
@@ -158,6 +185,7 @@ function getThemeColor(team) {
   return colors[team] || colors.original;
 }
 
+// Check if path is a theme asset
 function isThemeAsset(path) {
   return [
     '/black.png',
@@ -170,8 +198,18 @@ function isThemeAsset(path) {
 
 // Handle messages from clients
 self.addEventListener('message', (event) => {
-  if (event.data.type === 'THEME_UPDATE') {
-    handleThemeUpdate(event.data);
+  switch (event.data.type) {
+    case 'THEME_UPDATE':
+      handleThemeUpdate(event.data);
+      break;
+      
+    case 'INIT_NOTIFICATIONS':
+      initNotifications(event.data.team);
+      break;
+      
+    case 'GET_CURRENT_TEAM':
+      // Response handled via client.postMessage in getCurrentTeam()
+      break;
   }
 });
 
@@ -187,7 +225,7 @@ async function handleThemeUpdate(data) {
     await cache.put('/manifest.json', new Response(JSON.stringify(manifest)));
   }
   
-  // Notify all clients
+  // Notify all clients about theme update
   const clients = await self.clients.matchAll();
   clients.forEach(client => {
     client.postMessage({
@@ -197,10 +235,24 @@ async function handleThemeUpdate(data) {
   });
 }
 
+// Initialize notifications
+function initNotifications(team) {
+  console.log('Initializing notifications for team:', team);
+  // You would add your notification scheduling logic here
+}
+
 // Notification click handler
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil(
     clients.openWindow(event.notification.data?.url || '/')
   );
+});
+
+// Background sync registration (optional)
+self.addEventListener('sync', event => {
+  if (event.tag === 'sync-data') {
+    console.log('Background sync triggered');
+    // Add your background sync logic here
+  }
 });
